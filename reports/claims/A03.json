@@ -1,0 +1,29 @@
+{
+  "id": "A03",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "Eq.5、官方 README 与官方代码的归一化公式一致",
+  "paper_ref": "Eq.5, p.5; official README/notebook",
+  "notebook": "01_formula_audit",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "pairwise_max_abs_difference": {
+      "paper_vs_readme": 0.5,
+      "paper_vs_official": 0.09999999999999998,
+      "readme_vs_official": 0.4
+    },
+    "detected_target": {
+      "paper": 0,
+      "readme": 0,
+      "official": 0
+    },
+    "targets_agree": true,
+    "paper_formula": "exp(s*T)/T - 1/T (T=2)",
+    "readme_formula": "P_k - 1",
+    "official_formula": "min(exp(s*T)/T, 2) - 0.6"
+  },
+  "notes_zh": "论文 Eq.5、官方 README（CIFAR-10 用 P_k−1）与官方 Notebook（截断 2 再减 0.6）是三种不同归一化，不能同时成立。结论稳健性单独报告：三者选出的目标标签是否一致。",
+  "tolerance": {
+    "abs_exact": 1e-06
+  }
+}

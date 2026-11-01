@@ -1,0 +1,21 @@
+{
+  "id": "C02",
+  "tier": "C",
+  "scope": "exact",
+  "title_zh": "语音 ESC-50 与文本 THUCNews 的后门检测结果",
+  "paper_ref": "Sec. 5.4, p.8; Appendix G.1",
+  "notebook": "06_verdicts",
+  "verdict": "NOT_REPRODUCIBLE",
+  "measured": {
+    "reason_zh": "ESC-50 语音与 THUCNews 文本实验需要对应数据集、语音/文本骨干网络与任务相关的预处理流程；这些资源不在容器内，且与图像管线的接口不同。",
+    "needed": [
+      "ESC-50 数据集",
+      "THUCNews 数据集",
+      "语音/文本骨干网络",
+      "领域特定的损坏算子"
+    ],
+    "proxy_note_zh": "本容器不提供该实验的代理。"
+  },
+  "notes_zh": "ESC-50 语音与 THUCNews 文本实验需要对应数据集、语音/文本骨干网络与任务相关的预处理流程；这些资源不在容器内，且与图像管线的接口不同。",
+  "tolerance": {}
+}

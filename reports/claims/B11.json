@@ -1,0 +1,61 @@
+{
+  "id": "B11",
+  "tier": "B",
+  "scope": "proxy",
+  "title_zh": "均衡选择任务无关图像可减少误检（Fig.78/79）",
+  "paper_ref": "Appendix F, p.24",
+  "notebook": "04_detection",
+  "verdict": "PARTIAL",
+  "measured": {
+    "models": {
+      "clean": {
+        "balanced_target_z": 0.3076488640137183,
+        "imbalanced_target_z": 0.03150344465747874,
+        "balanced_max_other_z": 1.7727143544497206,
+        "imbalanced_max_other_z": 1.7433219900863244,
+        "balanced_lead": -1.4650654904360023,
+        "imbalanced_lead": -1.7118185454288457,
+        "lead_change": -0.2467530549928434,
+        "balanced_false_flags": 0,
+        "imbalanced_false_flags": 0,
+        "balanced_std": 19.47644624585957,
+        "imbalanced_std": 39.02041750027562
+      },
+      "badnets": {
+        "balanced_target_z": 2.734545830697119,
+        "imbalanced_target_z": 0.5411978285434177,
+        "balanced_max_other_z": 0.49806086452835335,
+        "imbalanced_max_other_z": 2.6611312428837874,
+        "balanced_lead": 2.2364849661687654,
+        "imbalanced_lead": -2.1199334143403696,
+        "lead_change": -4.356418380509135,
+        "balanced_false_flags": 0,
+        "imbalanced_false_flags": 1,
+        "balanced_std": 47.236027880726546,
+        "imbalanced_std": 29.551312095696392
+      },
+      "blend": {
+        "balanced_target_z": -0.1277291986250077,
+        "imbalanced_target_z": -0.11803640541913424,
+        "balanced_max_other_z": 2.007373295849286,
+        "imbalanced_max_other_z": 1.7511046599920492,
+        "balanced_lead": -2.1351024944742933,
+        "imbalanced_lead": -1.8691410654111835,
+        "lead_change": 0.2659614290631098,
+        "balanced_false_flags": 0,
+        "imbalanced_false_flags": 0,
+        "balanced_std": 25.582372887702252,
+        "imbalanced_std": 39.26428146926642
+      }
+    },
+    "per_attack_passed": {
+      "badnets": true,
+      "blend": false
+    },
+    "lambda": 2.2
+  },
+  "notes_zh": "消融“按伪标签均衡选图”：均衡选择每类 50 张；不均衡选择只保留伪标签最集中的 3 类共 500 张。核心统计量是目标标签相对最强非目标标签的领先量 z_t − max_{k≠t} z_k。论文 Fig.78/79 称不均衡选择会让其他标签的能量接近目标标签、造成误报；因此判据是领先量在均衡选择下更大且为正，同时报告两种选择下被 Eq.8 误标的标签数。干净模型作为对照，不参与判定。",
+  "tolerance": {
+    "lead_shrink": 0.0
+  }
+}

@@ -1,0 +1,172 @@
+{
+  "id": "A15",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "Table 4 文字结论：EBBA+ 的 BA 最优、ASR 更低",
+  "paper_ref": "Sec. 5.2, p.7-8; Table 4, p.9",
+  "notebook": "03_table_audit",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "rows": [
+      {
+        "dataset": "Cifar10",
+        "attack": "BadNets",
+        "ebba_ba": 89.92,
+        "best_other_ba": 89.72,
+        "ba_best": true,
+        "ebba_asr": 2.92,
+        "best_other_asr": 1.46,
+        "asr_lowest": false
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "Blend",
+        "ebba_ba": 89.72,
+        "best_other_ba": 90.06,
+        "ba_best": false,
+        "ebba_asr": 5.79,
+        "best_other_asr": 1.59,
+        "asr_lowest": false
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "WaNet",
+        "ebba_ba": 89.96,
+        "best_other_ba": 89.3,
+        "ba_best": true,
+        "ebba_asr": 4.36,
+        "best_other_asr": 3.96,
+        "asr_lowest": false
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "FIBA",
+        "ebba_ba": 90.02,
+        "best_other_ba": 89.75,
+        "ba_best": true,
+        "ebba_asr": 7.88,
+        "best_other_asr": 2.85,
+        "asr_lowest": false
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "DUBA",
+        "ebba_ba": 89.52,
+        "best_other_ba": 90.95,
+        "ba_best": false,
+        "ebba_asr": 5.24,
+        "best_other_asr": 4.09,
+        "asr_lowest": false
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "BadNets",
+        "ebba_ba": 99.06,
+        "best_other_ba": 97.82,
+        "ba_best": true,
+        "ebba_asr": 1.79,
+        "best_other_asr": 0.72,
+        "asr_lowest": false
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "Blend",
+        "ebba_ba": 98.92,
+        "best_other_ba": 97.57,
+        "ba_best": true,
+        "ebba_asr": 2.72,
+        "best_other_asr": 2.36,
+        "asr_lowest": false
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "WaNet",
+        "ebba_ba": 98.79,
+        "best_other_ba": 97.5,
+        "ba_best": true,
+        "ebba_asr": 1.37,
+        "best_other_asr": 1.92,
+        "asr_lowest": true
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "FIBA",
+        "ebba_ba": 98.36,
+        "best_other_ba": 96.68,
+        "ba_best": true,
+        "ebba_asr": 1.47,
+        "best_other_asr": 1.92,
+        "asr_lowest": true
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "DUBA",
+        "ebba_ba": 98.94,
+        "best_other_ba": 97.83,
+        "ba_best": true,
+        "ebba_asr": 3.72,
+        "best_other_asr": 3.33,
+        "asr_lowest": false
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "BadNets",
+        "ebba_ba": 88.19,
+        "best_other_ba": 87.09,
+        "ba_best": true,
+        "ebba_asr": 1.51,
+        "best_other_asr": 2.28,
+        "asr_lowest": true
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "Blend",
+        "ebba_ba": 88.36,
+        "best_other_ba": 86.92,
+        "ba_best": true,
+        "ebba_asr": 1.32,
+        "best_other_asr": 5.04,
+        "asr_lowest": true
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "WaNet",
+        "ebba_ba": 87.94,
+        "best_other_ba": 86.9,
+        "ba_best": true,
+        "ebba_asr": 4.76,
+        "best_other_asr": 3.02,
+        "asr_lowest": false
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "FIBA",
+        "ebba_ba": 88.09,
+        "best_other_ba": 87.15,
+        "ba_best": true,
+        "ebba_asr": 1.92,
+        "best_other_asr": 2.3,
+        "asr_lowest": true
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "DUBA",
+        "ebba_ba": 87.91,
+        "best_other_ba": 86.69,
+        "ba_best": true,
+        "ebba_asr": 2.96,
+        "best_other_asr": 2.06,
+        "asr_lowest": false
+      }
+    ],
+    "n_rows": 15,
+    "ba_best_rows": 13,
+    "asr_lowest_rows": 5,
+    "asr_below_no_defense_rows": 15
+  },
+  "notes_zh": "Table 4 标题称 EBBA+ 的 BA 在所有方法中最好、ASR 与之相当。逐行核对：BA 严格最高 13/15 行，ASR 严格最低 5/15 行。论文正文的措辞是“lower or competitive”，并非全面最优；标题中的“best”对 2 行（Cifar10 Blend、Cifar10 DUBA）不成立。",
+  "tolerance": {
+    "min_best_ba_rows": 15,
+    "min_best_asr_rows": 15
+  }
+}

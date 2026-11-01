@@ -1,0 +1,67 @@
+{
+  "id": "B08",
+  "tier": "B",
+  "scope": "proxy",
+  "title_zh": "四种聚类方法的 PDR 差异很小（Table 5/7）",
+  "paper_ref": "Table 5, p.9; Table 7, p.24",
+  "notebook": "05_removal",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "attacks": {
+      "badnets": {
+        "methods": {
+          "hc": {
+            "pdr": 0.3894736842105263,
+            "f1": 0.548148148148148,
+            "method_used": "hc"
+          },
+          "birch": {
+            "pdr": 0.3736842105263158,
+            "f1": 0.5298507462686568,
+            "method_used": "birch"
+          },
+          "meanshift": {
+            "pdr": 0.5105263157894737,
+            "f1": 0.6466666666666667,
+            "method_used": "meanshift"
+          },
+          "dbscan": {
+            "pdr": 0.5052631578947369,
+            "f1": 0.6421404682274248,
+            "method_used": "fallback_kmeans"
+          }
+        },
+        "pdr_spread": 0.13684210526315793
+      },
+      "blend": {
+        "methods": {
+          "hc": {
+            "pdr": 0.8241206030150754,
+            "f1": 0.8431876606683806,
+            "method_used": "hc"
+          },
+          "birch": {
+            "pdr": 0.7386934673366834,
+            "f1": 0.7989130434782609,
+            "method_used": "birch"
+          },
+          "meanshift": {
+            "pdr": 0.7185929648241206,
+            "f1": 0.7835616438356163,
+            "method_used": "meanshift"
+          },
+          "dbscan": {
+            "pdr": 0.6733668341708543,
+            "f1": 0.7613636363636364,
+            "method_used": "fallback_kmeans"
+          }
+        },
+        "pdr_spread": 0.1507537688442211
+      }
+    }
+  },
+  "notes_zh": "对 HC、Birch、Mean Shift、DBSCAN 四种聚类重复同一流程。论文称方法选择影响很小（Table 5/7 极差 0.010）；缩比实验用 0.10 的极差上限。若某方法退化，代码会回退到 KMeans 并记录 method_used='fallback_kmeans'。缩比模型的簇本身不纯（PDR≈0.7–0.85），此时换聚类方法会实际改变判为中毒的图；极差超限更多反映代理设定的可分性，而不是论文四种方法在干净簇（PDR≈0.95）上的差异。",
+  "tolerance": {
+    "max_pdr_spread": 0.1
+  }
+}

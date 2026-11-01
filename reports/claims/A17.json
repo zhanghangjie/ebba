@@ -1,0 +1,20 @@
+{
+  "id": "A17",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "Fig.80 的文字阈值方向与 Eq.8 一致",
+  "paper_ref": "Appendix F, p.24; Eq.8, p.5",
+  "notebook": "01_formula_audit",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "first_sentence": "If this value is lower than 0, the model is considered as backdoored.",
+    "second_sentence": "the value for the clean model is less than 0, while the value for the poisoned model is greater than 0",
+    "eq8_direction": "E_k' - mu > lambda * sigma  =>  backdoored",
+    "first_vs_eq8": "opposite",
+    "second_vs_eq8": "consistent"
+  },
+  "notes_zh": "Appendix F 第一句称“值小于 0 判为后门”，随后又说 clean<0、poisoned>0，与 Eq.8（大于 λσ 判为后门）矛盾。应以 Eq.8 为准，第一句是笔误。",
+  "tolerance": {
+    "textual_consistency": true
+  }
+}

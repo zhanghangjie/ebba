@@ -1,0 +1,36 @@
+{
+  "id": "A19",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "自适应攻击下 EBBA 的检测率超过 99%",
+  "paper_ref": "Appendix G.4, p.26",
+  "notebook": "03_table_audit",
+  "verdict": "PARTIAL",
+  "measured": {
+    "settings": [
+      0.9,
+      0.6,
+      0.91,
+      0.92,
+      0.93,
+      0.94,
+      0.95,
+      0.96,
+      0.97,
+      0.98,
+      0.985,
+      0.99,
+      0.995
+    ],
+    "n_settings": 13,
+    "failing_settings": [
+      0.985
+    ],
+    "setting_pass_rate": 0.9230769230769231,
+    "paper_statement": "only 0.985 makes EBBA confused; detection rate over 99%"
+  },
+  "notes_zh": "Appendix G.4 列出 13 个软标签参数，并明确承认 0.985 时 EBBA 失效。按参数组计算通过率为 12/13 = 92.3%，低于 99%。若“检测率”指逐样本比例则无法从文中数值核实；因此该断言只能记 PARTIAL。",
+  "tolerance": {
+    "min_detection_rate": 0.99
+  }
+}

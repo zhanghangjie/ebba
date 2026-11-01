@@ -1,0 +1,22 @@
+{
+  "id": "A13",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "Table 6 的 GTSRB 测试集大小与标准数据集一致",
+  "paper_ref": "Table 6, p.18",
+  "notebook": "03_table_audit",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "stated_test": 12603,
+    "standard_test": 12630,
+    "difference": -27,
+    "stated_train": 39209,
+    "standard_train": 39209,
+    "train_matches": true,
+    "looks_like_transposition": false
+  },
+  "notes_zh": "GTSRB 测试集的标准大小是 12630，论文 Table 6 写成 12603（数字转置）。训练集 39209 与标准值一致，因此这不是“使用了子集”，而是笔误。",
+  "tolerance": {
+    "exact_size": 12630
+  }
+}

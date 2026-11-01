@@ -1,0 +1,18 @@
+{
+  "id": "A05",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "Eq.9-10 的 TE/NTE 恒等式及均值为 0",
+  "paper_ref": "Eq.9-10, p.6",
+  "notebook": "01_formula_audit",
+  "verdict": "CONFIRMED",
+  "measured": {
+    "max_identity_error": 0.0,
+    "max_abs_mean_difference_over_labels": 4.3194614551822494e-17,
+    "max_softmax_sum_error": 2.220446049250313e-16
+  },
+  "notes_zh": "TE=exp(s'-s) 与 NTE=TE−1 在数值上成立；由于 softmax 每行和为 1，逐样本的 mean_k(s'_k−s_k)=0 严格成立，论文用 e^0=1 作基准是合理的。",
+  "tolerance": {
+    "abs_exact": 1e-09
+  }
+}

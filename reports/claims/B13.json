@@ -1,0 +1,36 @@
+{
+  "id": "B13",
+  "tier": "B",
+  "scope": "proxy",
+  "title_zh": "多目标攻击下能量统计可同时标出两个目标",
+  "paper_ref": "Appendix G.2, p.9/25",
+  "notebook": "05_removal",
+  "verdict": "PARTIAL",
+  "measured": {
+    "injected_energy": [
+      205.0590528180661,
+      205.0590528180661,
+      83.61799590357344,
+      99.41638660129256,
+      49.088306552280514,
+      44.33885297312128,
+      75.19438891689461,
+      53.40986243620655,
+      28.657071822909057,
+      65.65900465765999
+    ],
+    "top2_labels": [
+      0,
+      1
+    ],
+    "expected": [
+      0,
+      1
+    ],
+    "scope": "synthetic injection of a second target anomaly into the measured energy vector"
+  },
+  "notes_zh": "论文 Appendix G.2 用双目标攻击展示两个目标标签的能量同时偏高。这里不训练双目标模型，而是在实测能量向量上注入与目标 0 等高的第二个异常，检查 Eq.6/8 的排序能否同时标出两者。它验证统计量的排序能力，不验证攻击训练。",
+  "tolerance": {
+    "top2_recall": 1.0
+  }
+}

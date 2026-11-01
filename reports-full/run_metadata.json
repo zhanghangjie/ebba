@@ -1,0 +1,14 @@
+{
+  "profile": "full",
+  "fast": false,
+  "device": "auto",
+  "notebooks": [
+    {
+      "name": "07_full_comparison",
+      "status": "ok",
+      "seconds": 1.0
+    }
+  ],
+  "started_at": 1792606893.4465606,
+  "total_seconds": 1.0
+}

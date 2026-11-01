@@ -1,0 +1,109 @@
+{
+  "id": "A12",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "所有攻击的 ASR 均训练到 98.8% 以上",
+  "paper_ref": "Sec. 5.1, p.7; Table 4 No Defense 列",
+  "notebook": "03_table_audit",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "rows": [
+      {
+        "dataset": "Cifar10",
+        "attack": "BadNets",
+        "no_defense_asr": 99.36,
+        "passes": true
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "Blend",
+        "no_defense_asr": 99.97,
+        "passes": true
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "WaNet",
+        "no_defense_asr": 99.78,
+        "passes": true
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "FIBA",
+        "no_defense_asr": 99.26,
+        "passes": true
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "DUBA",
+        "no_defense_asr": 99.98,
+        "passes": true
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "BadNets",
+        "no_defense_asr": 99.62,
+        "passes": true
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "Blend",
+        "no_defense_asr": 99.72,
+        "passes": true
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "WaNet",
+        "no_defense_asr": 99.81,
+        "passes": true
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "FIBA",
+        "no_defense_asr": 98.91,
+        "passes": true
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "DUBA",
+        "no_defense_asr": 99.92,
+        "passes": true
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "BadNets",
+        "no_defense_asr": 99.22,
+        "passes": true
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "Blend",
+        "no_defense_asr": 98.62,
+        "passes": false
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "WaNet",
+        "no_defense_asr": 99.27,
+        "passes": true
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "FIBA",
+        "no_defense_asr": 98.59,
+        "passes": false
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "DUBA",
+        "no_defense_asr": 99.36,
+        "passes": true
+      }
+    ],
+    "n_failures": 2,
+    "min_asr": 98.59
+  },
+  "notes_zh": "论文 Sec. 5.1 称所有攻击均训练到 ASR 98.8% 以上。Table 4 的 No Defense 列中有 2 行低于 98.8%（ImageNet Blend 98.62、ImageNet FIBA 98.59），属于可直接核对的数值反例。",
+  "tolerance": {
+    "threshold": 98.8
+  }
+}

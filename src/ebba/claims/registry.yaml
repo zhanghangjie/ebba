@@ -1,0 +1,276 @@
+# 预先登记的声明清单 —— 唯一事实源。
+# verdict 由代码运行决定，本文件只定义“要检验什么、在哪里、容差多少”。
+claims:
+  A01:
+    tier: A
+    scope: exact
+    title_zh: "附录 B 算例：softmax 与能量数值是否可复算"
+    paper_ref: "Appendix B, Eq.21-26, p.14"
+    notebook: "01_formula_audit"
+    tolerance: {abs_two_decimals: 0.01, abs_three_decimals: 0.005}
+  A02:
+    tier: A
+    scope: exact
+    title_zh: "Eq.3 是“最大值置 0”，而非减去最大值"
+    paper_ref: "Eq.3, p.5; Appendix B Eq.24"
+    notebook: "01_formula_audit"
+    tolerance: {abs_exact: 1.0e-12}
+  A03:
+    tier: A
+    scope: exact
+    title_zh: "Eq.5、官方 README 与官方代码的归一化公式一致"
+    paper_ref: "Eq.5, p.5; official README/notebook"
+    notebook: "01_formula_audit"
+    tolerance: {abs_exact: 1.0e-6}
+  A04:
+    tier: A
+    scope: exact
+    title_zh: "Eq.7 的求和下标与方差分母自洽"
+    paper_ref: "Eq.2, Eq.6, Eq.7, p.5"
+    notebook: "01_formula_audit"
+    tolerance: {max_zscore_shift: 0.05}
+  A05:
+    tier: A
+    scope: exact
+    title_zh: "Eq.9-10 的 TE/NTE 恒等式及均值为 0"
+    paper_ref: "Eq.9-10, p.6"
+    notebook: "01_formula_audit"
+    tolerance: {abs_exact: 1.0e-9}
+  A06:
+    tier: A
+    scope: exact
+    title_zh: "Eq.9-10 与 Eq.4 使用同一温度 T"
+    paper_ref: "Eq.4, Eq.9-10, p.5-6"
+    notebook: "01_formula_audit"
+    tolerance: {argmax_agreement: 0.99}
+  A07:
+    tier: A
+    scope: exact
+    title_zh: "Lemma 2 证明中 Eq.30 的代数等价性"
+    paper_ref: "Appendix C, Eq.30, p.16"
+    notebook: "02_theory"
+    tolerance: {abs_exact: 1.0e-9}
+  A08:
+    tier: A
+    scope: exact
+    title_zh: "Lemma 2 对每一种损坏都成立"
+    paper_ref: "Lemma 2, p.6; Appendix C"
+    notebook: "02_theory"
+    tolerance: {universal_fraction: 1.0, aggregate_fraction: 0.90}
+  A09:
+    tier: A
+    scope: exact
+    title_zh: "Lemma 1（脏标签）的 NTK 核和占优"
+    paper_ref: "Lemma 1, p.4; Appendix A Eq.15-20"
+    notebook: "02_theory"
+    tolerance: {dominance_fraction: 0.90}
+  A10:
+    tier: A
+    scope: exact
+    title_zh: "Lemma 1（干净标签）的 NTK 核和占优"
+    paper_ref: "Appendix G.3, Eq.35-36, p.26"
+    notebook: "02_theory"
+    tolerance: {dominance_fraction: 0.90}
+  A11:
+    tier: A
+    scope: exact
+    title_zh: "BA 下界 (K-1)/K × ba 对所有 Table 4 行成立"
+    paper_ref: "Sec. 5.2, p.8; Table 4, p.9"
+    notebook: "03_table_audit"
+    tolerance: {abs_margin: 0.005}
+  A12:
+    tier: A
+    scope: exact
+    title_zh: "所有攻击的 ASR 均训练到 98.8% 以上"
+    paper_ref: "Sec. 5.1, p.7; Table 4 No Defense 列"
+    notebook: "03_table_audit"
+    tolerance: {threshold: 98.8}
+  A13:
+    tier: A
+    scope: exact
+    title_zh: "Table 6 的 GTSRB 测试集大小与标准数据集一致"
+    paper_ref: "Table 6, p.18"
+    notebook: "03_table_audit"
+    tolerance: {exact_size: 12630}
+  A14:
+    tier: A
+    scope: exact
+    title_zh: "四种聚类方法的 PDR 差异很小（Table 5/7）"
+    paper_ref: "Table 5, p.9; Table 7, p.24"
+    notebook: "03_table_audit"
+    tolerance: {max_pdr_spread: 0.05}
+  A15:
+    tier: A
+    scope: exact
+    title_zh: "Table 4 文字结论：EBBA+ 的 BA 最优、ASR 更低"
+    paper_ref: "Sec. 5.2, p.7-8; Table 4, p.9"
+    notebook: "03_table_audit"
+    tolerance: {min_best_ba_rows: 15, min_best_asr_rows: 15}
+  A16:
+    tier: A
+    scope: exact
+    title_zh: "Table 3 声称 EBBA+ 在 PDR 和 F1 上全面最优"
+    paper_ref: "Sec. 5.2, p.7; Table 3, p.8"
+    notebook: "03_table_audit"
+    tolerance: {max_violations: 0}
+  A17:
+    tier: A
+    scope: exact
+    title_zh: "Fig.80 的文字阈值方向与 Eq.8 一致"
+    paper_ref: "Appendix F, p.24; Eq.8, p.5"
+    notebook: "01_formula_audit"
+    tolerance: {textual_consistency: true}
+  A18:
+    tier: A
+    scope: exact
+    title_zh: "官方代码实现了论文的无任务样本、均衡选择与 80 种损坏协议"
+    paper_ref: "Sec. 4.1, Sec. 5.1; official notebook"
+    notebook: "03_table_audit"
+    tolerance: {protocol_checks: 8}
+  A19:
+    tier: A
+    scope: exact
+    title_zh: "自适应攻击下 EBBA 的检测率超过 99%"
+    paper_ref: "Appendix G.4, p.26"
+    notebook: "03_table_audit"
+    tolerance: {min_detection_rate: 0.99}
+  A20:
+    tier: A
+    scope: exact
+    title_zh: "λ=3 在 CIFAR-10（K=10）上可满足 Eq.8 的严格不等式"
+    paper_ref: "Eq.7-8, p.5; Appendix F p.24; Table 2, p.8"
+    notebook: "01_formula_audit"
+    tolerance: {lambda: 3.0, max_zscore: 3.0}
+  B01:
+    tier: B
+    scope: proxy
+    title_zh: "目标标签在干净/OOD 样本的 top 输出中更常见（Fig.1）"
+    paper_ref: "Fig.1, p.2; Lemma 1"
+    notebook: "04_detection"
+    tolerance: {top3_fraction: 0.50}
+  B02:
+    tier: B
+    scope: proxy
+    title_zh: "EBBA 无需任务样本即可检测后门模型（Table 2）"
+    paper_ref: "Table 2, p.8; Eq.8"
+    notebook: "04_detection"
+    tolerance: {margin_sign: "backdoored>0, clean<0"}
+  B03:
+    tier: B
+    scope: proxy
+    title_zh: "λ 的可用区间形状与 Fig.80 一致"
+    paper_ref: "Fig.80, p.24"
+    notebook: "04_detection"
+    tolerance: {interval_overlap: true}
+  B04:
+    tier: B
+    scope: proxy
+    title_zh: "图像损坏使真值标签前移、目标标签后移（Fig.2）"
+    paper_ref: "Fig.2, p.2; Lemma 2"
+    notebook: "05_removal"
+    tolerance: {direction_fraction: 0.60, gt_forward_fraction: 0.90}
+  B05:
+    tier: B
+    scope: proxy
+    title_zh: "NTE 的 argmax 能恢复中毒图像的原始标签（Eq.12）"
+    paper_ref: "Eq.12, p.6"
+    notebook: "05_removal"
+    tolerance: {recovery_accuracy: 0.85}
+  B06:
+    tier: B
+    scope: proxy
+    title_zh: "干净目标类图像的 NTE 转移接近随机，故需聚类区分"
+    paper_ref: "Sec. 4.2, p.6-7"
+    notebook: "05_removal"
+    tolerance: {uniformity_p_value: 0.01}
+  B07:
+    tier: B
+    scope: proxy
+    title_zh: "EBBA+ 的 PDR/F1 达到论文报告的量级（Table 3）"
+    paper_ref: "Table 3, p.8"
+    notebook: "05_removal"
+    tolerance: {min_pdr: 0.70, min_f1: 0.70}
+  B08:
+    tier: B
+    scope: proxy
+    title_zh: "四种聚类方法的 PDR 差异很小（Table 5/7）"
+    paper_ref: "Table 5, p.9; Table 7, p.24"
+    notebook: "05_removal"
+    tolerance: {max_pdr_spread: 0.10}
+  B09:
+    tier: B
+    scope: proxy
+    title_zh: "EBBA+ 去除后门且保持良性精度（Table 4）"
+    paper_ref: "Table 4, p.9; Eq.12"
+    notebook: "05_removal"
+    tolerance: {asr_reduction: 0.80, max_ba_drop: 0.05}
+  B10:
+    tier: B
+    scope: proxy
+    title_zh: "缩比模型上 BA ≥ (K-1)/K × ba"
+    paper_ref: "Sec. 5.2, p.8"
+    notebook: "05_removal"
+    tolerance: {abs_margin: 0.005}
+  B11:
+    tier: B
+    scope: proxy
+    title_zh: "均衡选择任务无关图像可减少误检（Fig.78/79）"
+    paper_ref: "Appendix F, p.24"
+    notebook: "04_detection"
+    tolerance: {lead_shrink: 0.0}
+  B12:
+    tier: B
+    scope: proxy
+    title_zh: "自适应软标签攻击下，双边检验 |E-μ|>λσ 仍可检测"
+    paper_ref: "Appendix G.4, p.26"
+    notebook: "04_detection"
+    tolerance: {two_sided_success: true}
+  B13:
+    tier: B
+    scope: proxy
+    title_zh: "多目标攻击下能量统计可同时标出两个目标"
+    paper_ref: "Appendix G.2, p.9/25"
+    notebook: "05_removal"
+    tolerance: {top2_recall: 1.0}
+  B14:
+    tier: B
+    scope: proxy
+    title_zh: "NTE 的标签恢复对温度/截断变体不敏感"
+    paper_ref: "Eq.4 vs Eq.9-10"
+    notebook: "05_removal"
+    tolerance: {argmax_agreement: 0.99}
+  C01:
+    tier: C
+    scope: exact
+    title_zh: "Table 3/4 的全量数字（ResNet18、200 epochs、三数据集）"
+    paper_ref: "Table 3-4, p.8-9"
+    notebook: "06_verdicts"
+    tolerance: {}
+  C02:
+    tier: C
+    scope: exact
+    title_zh: "语音 ESC-50 与文本 THUCNews 的后门检测结果"
+    paper_ref: "Sec. 5.4, p.8; Appendix G.1"
+    notebook: "06_verdicts"
+    tolerance: {}
+  C03:
+    tier: C
+    scope: exact
+    title_zh: "13 组自适应攻击参数的完整训练复现"
+    paper_ref: "Appendix G.4, p.26"
+    notebook: "06_verdicts"
+    tolerance: {}
+  C04:
+    tier: C
+    scope: exact
+    title_zh: "all-to-all 与 full-target 攻击的完整评估"
+    paper_ref: "Appendix G.5-G.6, p.27"
+    notebook: "06_verdicts"
+    tolerance: {}
+  C05:
+    tier: C
+    scope: exact
+    title_zh: "ImageNet 子集（100 类、224×224）规模的结果"
+    paper_ref: "Table 6, p.18; Table 3-4"
+    notebook: "06_verdicts"
+    tolerance: {}

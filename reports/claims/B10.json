@@ -1,0 +1,32 @@
+{
+  "id": "B10",
+  "tier": "B",
+  "scope": "proxy",
+  "title_zh": "缩比模型上 BA ≥ (K-1)/K × ba",
+  "paper_ref": "Sec. 5.2, p.8",
+  "notebook": "05_removal",
+  "verdict": "PARTIAL",
+  "measured": {
+    "attacks": {
+      "badnets": {
+        "ba_before_global": 0.7905,
+        "ba_after_global_estimate": 0.788008896797153,
+        "bound": 0.71145,
+        "margin": 0.076558896797153,
+        "fp": 7
+      },
+      "blend": {
+        "ba_before_global": 0.804,
+        "ba_after_global_estimate": 0.7963875432525952,
+        "bound": 0.7236,
+        "margin": 0.07278754325259518,
+        "fp": 22
+      }
+    },
+    "K": 10
+  },
+  "notes_zh": "在缩比模型上检验 Sec.5.2 的经验下界 BA ≥ (K−1)/K×ba。按论文语境使用**全测试集** BA：防御只改动被判为目标类的图，因此全局 BA 降幅由池内误报数折算。该下界很松（K=10 时为 0.9×BA），通过它只能说明结果不与下界矛盾。",
+  "tolerance": {
+    "abs_margin": 0.005
+  }
+}

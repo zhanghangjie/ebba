@@ -1,0 +1,2539 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EBBA / EBBA+ 可复现验证报告</title>
+<style>
+  :root { color-scheme: light; }
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+         margin: 0; background: #f6f7f9; color: #1f2328; line-height: 1.55; }
+  main { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  h2 { font-size: 20px; margin-top: 34px; border-bottom: 1px solid #d8dee4; padding-bottom: 6px; }
+  .sub { color: #57606a; margin: 0 0 18px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
+  .stat { background: #fff; border: 1px solid #d8dee4; border-radius: 10px; padding: 12px 16px; min-width: 120px; }
+  .stat b { display: block; font-size: 24px; }
+  table { border-collapse: collapse; background: #fff; }
+  td, th { border: 1px solid #d8dee4; padding: 6px 12px; text-align: left; }
+  .badge { color: #fff; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 600; }
+  .claim { background: #fff; border: 1px solid #d8dee4; border-left-width: 5px; border-radius: 10px;
+            padding: 14px 18px; margin: 14px 0; }
+  .v-CONFIRMED { border-left-color: #1b7f3a; }
+  .v-PARTIAL { border-left-color: #9a6700; }
+  .v-CONTRADICTED { border-left-color: #b42318; }
+  .v-NOT_REPRODUCIBLE { border-left-color: #5f6b7a; }
+  .v-ERROR, .v-PENDING { border-left-color: #7a1fa2; }
+  .claim header { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .cid { font-family: ui-monospace, Consolas, monospace; font-weight: 700; }
+  .tier, .ref { color: #57606a; font-size: 12px; }
+  .claim h3 { margin: 10px 0 4px; font-size: 16px; }
+  .notes { margin: 8px 0; }
+  details summary { cursor: pointer; color: #0969da; font-size: 13px; }
+  pre { background: #f6f8fa; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: 12px; }
+  ul.findings li { margin-bottom: 10px; }
+  ul.findings span { color: #57606a; font-size: 13px; }
+  .callout { background: #fff8e6; border: 1px solid #f0d58c; border-radius: 10px; padding: 12px 16px; }
+  .lim { color: #57606a; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>EBBA / EBBA+ 可复现验证报告</h1>
+  <p class="sub">Gao et al., <i>Energy-based Backdoor Defense without Task-Specific Samples and Model Retraining</i>,
+  ICML 2024 (PMLR 235) · 生成于 2026-10-21T14:34:47+00:00</p>
+
+  <div class="callout">
+    <b>怎么读这份报告。</b> Tier A 是可直接核对的公式、表格算术与证明步骤；
+    Tier B 是缩比模型上的机制验证，按项目规则<b>永远不会标为 CONFIRMED</b>；
+    Tier C 是需要论文级算力、容器内无法复现的条目。CONTRADICTED 表示论文的某个可核对断言不成立，
+    不表示方法整体无效。
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>39</b>条声明</div>
+    <div class="stat" style="border-top:4px solid #1b7f3a"><b>3</b>CONFIRMED</div>
+    <div class="stat" style="border-top:4px solid #9a6700"><b>13</b>PARTIAL</div>
+    <div class="stat" style="border-top:4px solid #b42318"><b>18</b>CONTRADICTED</div>
+    <div class="stat" style="border-top:4px solid #5f6b7a"><b>5</b>NOT_REPRODUCIBLE</div>
+    <div class="stat" style="border-top:4px solid #7a1fa2"><b>0</b>ERROR</div>
+  </div>
+
+  <h2>判定统计</h2>
+  <table><tr><th>判定</th><th>数量</th></tr><tr><td>CONFIRMED</td><td>3</td></tr><tr><td>PARTIAL</td><td>13</td></tr><tr><td>CONTRADICTED</td><td>18</td></tr><tr><td>NOT_REPRODUCIBLE</td><td>5</td></tr><tr><td>ERROR</td><td>0</td></tr><tr><td>PENDING</td><td>0</td></tr></table>
+
+  <h2>被否定的声明（18 条）</h2>
+  <ul class="findings"><li><b>A01</b> 附录 B 算例：softmax 与能量数值是否可复算<br><span>按论文自己给出的 logits 精确计算 softmax，s2 应为 [0.0067, 0.9933, 0.0000]，而非 [0.12, 0.88, 0]；能量为 [4.7243, 4.7185, 4.6691]，而非 [4.82, 4.43, 4.62]。原文的顺序 E0&gt;E2&gt;E1 与“目标标签能量最低”的结论在其自身 logits 下均不成立（精确顺序为 E0&gt;E1&gt;E2）。clamp 后的示例方向正确，但 s* 与 E* 仍有 0.01-0.04 的误差。</span></li><li><b>A03</b> Eq.5、官方 README 与官方代码的归一化公式一致<br><span>论文 Eq.5、官方 README（CIFAR-10 用 P_k−1）与官方 Notebook（截断 2 再减 0.6）是三种不同归一化，不能同时成立。结论稳健性单独报告：三者选出的目标标签是否一致。</span></li><li><b>A04</b> Eq.7 的求和下标与方差分母自洽<br><span>Eq.2/6 写作 k∈[0,K]（K+1 项），Eq.7 却除以 K。K 个真实标签时应使用 K 项、除数 K；若按字面补一项，最大 z-score 会明显变化。实现采用 K 项。</span></li><li><b>A06</b> Eq.9-10 与 Eq.4 使用同一温度 T<br><span>Eq.4 的能量是 exp(s·T)/T，而 Eq.9/10 的比值把 T 消掉了（等价于 T=1）。形式不一致；实际影响用 argmax 一致率衡量。</span></li><li><b>A08</b> Lemma 2 对每一种损坏都成立<br><span>Lemma 2 的原文是逐图逐损坏的普遍断言（st&gt;s&#x27;_t 且 s_k1&lt;s&#x27;_k1）。在缩比后门模型上统计全部 80 种损坏：同时满足两条的 (图,损坏) 比例为 76.01%，故普遍形式被反例否定；但按损坏类型取平均后，70.0% 的损坏呈现聚合方向，与论文插图想表达的总体趋势一致。</span></li><li><b>A09</b> Lemma 1（脏标签）的 NTK 核和占优<br><span>按 Eq.13 的 NTK 核 K=e^{-2γ||x-x&#x27;||²}，在真实 CIFAR-10 像素上计算目标类与其他类的核和；γ 由查询-训练距离中位数标定，并报告 0.5×/1×/2× 的敏感性。两个情形分开看：目标类样本数多于其他类（190 vs 100）时目标核和几乎总是最大；两类样本数相等（100 vs 100）时只有 8% 的查询满足 Lemma 1。Lemma 1 的原文没有样本数条件，因此等量情形是合法反例，判 CONTRADICTED；更大的目标类会机械地带来更大的核和，这部分不能算作对引理的验证。这是对论文证明所用替代模型的复算，不是对训练网络的证明。</span></li><li><b>A10</b> Lemma 1（干净标签）的 NTK 核和占优<br><span>Eq.35 声称 e^{-2γ||v-T||²} ≥ e^{-2γ(||v||²+||T||²)}（v=x+T-x_t），该式仅在 ⟨v,T⟩≥0 时成立。反例 a=0,t=1,b=1.5,n=2：v=-0.5，左边 e^{-4.5} 小于右边 e^{-2.5}，方向相反，故干净标签分支的证明步骤无效。另外在干净标签协议下做核和模拟，目标类并不占优。</span></li><li><b>A11</b> BA 下界 (K-1)/K × ba 对所有 Table 4 行成立<br><span>按 Sec. 5.2 的下界 (K−1)/K×ba 逐行核对 Table 4。15 行中 2 行低于下界（容差 0.005），说明该式是经验观察而非可证定理，或表中数字有舍入/实验偏差。</span></li><li><b>A12</b> 所有攻击的 ASR 均训练到 98.8% 以上<br><span>论文 Sec. 5.1 称所有攻击均训练到 ASR 98.8% 以上。Table 4 的 No Defense 列中有 2 行低于 98.8%（ImageNet Blend 98.62、ImageNet FIBA 98.59），属于可直接核对的数值反例。</span></li><li><b>A13</b> Table 6 的 GTSRB 测试集大小与标准数据集一致<br><span>GTSRB 测试集的标准大小是 12630，论文 Table 6 写成 12603（数字转置）。训练集 39209 与标准值一致，因此这不是“使用了子集”，而是笔误。</span></li><li><b>A15</b> Table 4 文字结论：EBBA+ 的 BA 最优、ASR 更低<br><span>Table 4 标题称 EBBA+ 的 BA 在所有方法中最好、ASR 与之相当。逐行核对：BA 严格最高 13/15 行，ASR 严格最低 5/15 行。论文正文的措辞是“lower or competitive”，并非全面最优；标题中的“best”对 2 行（Cifar10 Blend、Cifar10 DUBA）不成立。</span></li><li><b>A16</b> Table 3 声称 EBBA+ 在 PDR 和 F1 上全面最优<br><span>Table 3 标题称 EBBA+ 在 PDR 与 F1 上优于所有对比方法。15 行中有 5 行在至少一个指标上严格劣于最好的基线（Cifar10 BadNets 的 PDR、Cifar10 Blend 的 F1、Cifar10 FIBA 的 PDR、GTSRB WaNet 的 PDR、ImageNet BadNets 的 F1），故“全面最优”不成立。另有若干平局，未计入反例。</span></li><li><b>A17</b> Fig.80 的文字阈值方向与 Eq.8 一致<br><span>Appendix F 第一句称“值小于 0 判为后门”，随后又说 clean&lt;0、poisoned&gt;0，与 Eq.8（大于 λσ 判为后门）矛盾。应以 Eq.8 为准，第一句是笔误。</span></li><li><b>A18</b> 官方代码实现了论文的无任务样本、均衡选择与 80 种损坏协议<br><span>对官方 PaddlePaddle Notebook 做静态解析（不执行）。8 项协议检查中7 项与论文不符：使用 GTSRB 验证集（任务相关）、无每类均衡、仅 704 张图、64 种损坏（含除以 1）、TE 截断 5/4 不一致、无聚类步骤。它能作为公式与流程的交叉参考，但不是论文实验的完整实现。</span></li><li><b>A20</b> λ=3 在 CIFAR-10（K=10）上可满足 Eq.8 的严格不等式<br><span>对任意 K 维能量向量，max_k (E_k−μ)/σ ≤ √(K−1)。K=10 时上界恰为 3：只有其余 9 个标签能量完全相等才能取到，而 Eq.8 要求严格大于 λσ。因此论文在 CIFAR-10 上取 λ=3 时，检测裕量在数学上几乎不可能为正；其 λ 的可用区间 [1.8, 5.7] 与 K=43 的 GTSRB（上界 6.48）一致，说明 λ=3 是在 GTSRB 上标定后直接用于 CIFAR-10 的。若按 Eq.7 字面把求和写成 K+1 项，上界升到 √10≈3.16，λ=3 才勉强可达。</span></li><li><b>B06</b> 干净目标类图像的 NTE 转移接近随机，故需聚类区分<br><span>论文 Sec.4.2 的关键论点是：干净图（包括被判为目标类的干净图）的能量转移是随机的，因此 NTE 本身无法区分干净图与中毒图，必须依赖 t-SNE + 聚类。这里检验干净目标类图的 NTE argmax 分布是否接近均匀（卡方检验，p&gt;0.01）并报告归一化熵、最大类占比；峰值 NTE 的均值比与 AUC 仅作辅助诊断。若分布显著集中，说明缩比模型的能量转移存在系统性偏差，论文的“随机”描述在该设定下不成立。</span></li><li><b>B08</b> 四种聚类方法的 PDR 差异很小（Table 5/7）<br><span>对 HC、Birch、Mean Shift、DBSCAN 四种聚类重复同一流程。论文称方法选择影响很小（Table 5/7 极差 0.010）；缩比实验用 0.10 的极差上限。若某方法退化，代码会回退到 KMeans 并记录 method_used=&#x27;fallback_kmeans&#x27;。缩比模型的簇本身不纯（PDR≈0.7–0.85），此时换聚类方法会实际改变判为中毒的图；极差超限更多反映代理设定的可分性，而不是论文四种方法在干净簇（PDR≈0.95）上的差异。</span></li><li><b>B14</b> NTE 的标签恢复对温度/截断变体不敏感<br><span>Eq.9/10 未写温度，官方代码用 T=1 并对单项 NTE 截断（5 或 4）。这里扫描 T∈{0.5,1,2,3} 与 cap∈{无,4,5}，以 (T=1, cap=5) 为基准统计 argmax 一致率。若一致率很高，说明实现细节不影响标签恢复；否则论文的公式歧义有实际后果。两组灵敏度分开报告：只改 cap（T=1）与只改温度（cap=5），以便看出是哪一项在起作用。</span></li></ul>
+
+  <h2>部分成立（13 条）</h2>
+  <ul><li><b>A07</b> Lemma 2 证明中 Eq.30 的代数等价性</li><li><b>A19</b> 自适应攻击下 EBBA 的检测率超过 99%</li><li><b>B01</b> 目标标签在干净/OOD 样本的 top 输出中更常见（Fig.1）</li><li><b>B02</b> EBBA 无需任务样本即可检测后门模型（Table 2）</li><li><b>B03</b> λ 的可用区间形状与 Fig.80 一致</li><li><b>B04</b> 图像损坏使真值标签前移、目标标签后移（Fig.2）</li><li><b>B05</b> NTE 的 argmax 能恢复中毒图像的原始标签（Eq.12）</li><li><b>B07</b> EBBA+ 的 PDR/F1 达到论文报告的量级（Table 3）</li><li><b>B09</b> EBBA+ 去除后门且保持良性精度（Table 4）</li><li><b>B10</b> 缩比模型上 BA ≥ (K-1)/K × ba</li><li><b>B11</b> 均衡选择任务无关图像可减少误检（Fig.78/79）</li><li><b>B12</b> 自适应软标签攻击下，双边检验 |E-μ|&gt;λσ 仍可检测</li><li><b>B13</b> 多目标攻击下能量统计可同时标出两个目标</li></ul>
+
+  <h2>逐条结果</h2>
+  
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A01</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>附录 B 算例：softmax 与能量数值是否可复算</h3>
+  <p class="ref">Appendix B, Eq.21-26, p.14 · notebook: 01_formula_audit</p>
+  <p class="notes">按论文自己给出的 logits 精确计算 softmax，s2 应为 [0.0067, 0.9933, 0.0000]，而非 [0.12, 0.88, 0]；能量为 [4.7243, 4.7185, 4.6691]，而非 [4.82, 4.43, 4.62]。原文的顺序 E0&gt;E2&gt;E1 与“目标标签能量最低”的结论在其自身 logits 下均不成立（精确顺序为 E0&gt;E1&gt;E2）。clamp 后的示例方向正确，但 s* 与 E* 仍有 0.01-0.04 的误差。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;softmax_exact&quot;: [
+    [
+      0.9996192824433975,
+      0.00033533491139048534,
+      4.538264521215575e-05
+    ],
+    [
+      0.006692549116589288,
+      0.9932623568421745,
+      4.5094041236354885e-05
+    ],
+    [
+      0.00032932043896389293,
+      0.017980286735531543,
+      0.9816903928255046
+    ]
+  ],
+  &quot;softmax_paper&quot;: [
+    [
+      0.99,
+      0.01,
+      0.0
+    ],
+    [
+      0.12,
+      0.88,
+      0.0
+    ],
+    [
+      0.002,
+      0.018,
+      0.98
+    ]
+  ],
+  &quot;softmax_max_abs_error&quot;: 0.11330745088341071,
+  &quot;energy_exact&quot;: [
+    4.724291496758145,
+    4.71850687291136,
+    4.669054507269333
+  ],
+  &quot;energy_paper&quot;: [
+    4.82,
+    4.43,
+    4.62
+  ],
+  &quot;energy_max_abs_error&quot;: 0.28850687291136,
+  &quot;energy_from_paper_softmax&quot;: [
+    4.820733325262638,
+    4.439112849891171,
+    4.664456241929416
+  ],
+  &quot;order_paper&quot;: [
+    0,
+    2,
+    1
+  ],
+  &quot;order_exact&quot;: [
+    0,
+    1,
+    2
+  ],
+  &quot;order_exact_from_paper_softmax&quot;: [
+    0,
+    2,
+    1
+  ],
+  &quot;paper_target_is_lowest&quot;: true,
+  &quot;exact_target_is_lowest&quot;: false,
+  &quot;clamped_softmax_exact&quot;: [
+    [
+      0.24472847105479764,
+      0.6652409557748218,
+      0.09003057317038046
+    ],
+    [
+      0.9464991225528937,
+      0.047123416524664154,
+      0.006377460922442298
+    ],
+    [
+      0.01714782554552039,
+      0.9362395518765058,
+      0.0466126225779739
+    ]
+  ],
+  &quot;clamped_softmax_paper&quot;: [
+    [
+      0.231,
+      0.66,
+      0.09
+    ],
+    [
+      0.94,
+      0.05,
+      0.01
+    ],
+    [
+      0.02,
+      0.94,
+      0.04
+    ]
+  ],
+  &quot;clamped_softmax_max_abs_error&quot;: 0.01372847105479763,
+  &quot;clamped_energy_exact&quot;: [
+    4.871243376256302,
+    5.543583305299654,
+    3.148321645728359
+  ],
+  &quot;clamped_energy_paper&quot;: [
+    4.83,
+    5.54,
+    3.14
+  ],
+  &quot;clamped_energy_max_abs_error&quot;: 0.041243376256302255,
+  &quot;clamped_order_exact&quot;: [
+    1,
+    0,
+    2
+  ]
+}</pre>
+    <pre>{&quot;abs_two_decimals&quot;: 0.01, &quot;abs_three_decimals&quot;: 0.005}</pre>
+  </details>
+</article>
+<article class="claim v-CONFIRMED">
+  <header>
+    <span class="cid">A02</span>
+    <span class="badge" style="background:#1b7f3a">CONFIRMED · 已确认</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>Eq.3 是“最大值置 0”，而非减去最大值</h3>
+  <p class="ref">Eq.3, p.5; Appendix B Eq.24 · notebook: 01_formula_audit</p>
+  <p class="notes">论文 Eq.24 的示例 [3,8,-2]→[3,0,-2] 只能由“把最大值置 0”得到；减最大值会得到 [0,-5,-10]。因此 Eq.3 是 clamp，不是平移，且不保持 softmax 不变性。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;rows&quot;: [
+    {
+      &quot;input&quot;: [
+        9.0,
+        1.0,
+        -1.0
+      ],
+      &quot;clamp&quot;: [
+        0.0,
+        1.0,
+        -1.0
+      ],
+      &quot;subtract_max&quot;: [
+        0.0,
+        -8.0,
+        -10.0
+      ],
+      &quot;paper_example_matches_clamp&quot;: true,
+      &quot;clamp_differs_from_subtract&quot;: true
+    },
+    {
+      &quot;input&quot;: [
+        3.0,
+        8.0,
+        -2.0
+      ],
+      &quot;clamp&quot;: [
+        3.0,
+        0.0,
+        -2.0
+      ],
+      &quot;subtract_max&quot;: [
+        -5.0,
+        0.0,
+        -10.0
+      ],
+      &quot;paper_example_matches_clamp&quot;: true,
+      &quot;clamp_differs_from_subtract&quot;: true
+    },
+    {
+      &quot;input&quot;: [
+        -1.0,
+        3.0,
+        7.0
+      ],
+      &quot;clamp&quot;: [
+        -1.0,
+        3.0,
+        0.0
+      ],
+      &quot;subtract_max&quot;: [
+        -8.0,
+        -4.0,
+        0.0
+      ],
+      &quot;paper_example_matches_clamp&quot;: true,
+      &quot;clamp_differs_from_subtract&quot;: true
+    }
+  ]
+}</pre>
+    <pre>{&quot;abs_exact&quot;: 1e-12}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A03</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>Eq.5、官方 README 与官方代码的归一化公式一致</h3>
+  <p class="ref">Eq.5, p.5; official README/notebook · notebook: 01_formula_audit</p>
+  <p class="notes">论文 Eq.5、官方 README（CIFAR-10 用 P_k−1）与官方 Notebook（截断 2 再减 0.6）是三种不同归一化，不能同时成立。结论稳健性单独报告：三者选出的目标标签是否一致。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;pairwise_max_abs_difference&quot;: {
+    &quot;paper_vs_readme&quot;: 0.5,
+    &quot;paper_vs_official&quot;: 0.09999999999999998,
+    &quot;readme_vs_official&quot;: 0.4
+  },
+  &quot;detected_target&quot;: {
+    &quot;paper&quot;: 0,
+    &quot;readme&quot;: 0,
+    &quot;official&quot;: 0
+  },
+  &quot;targets_agree&quot;: true,
+  &quot;paper_formula&quot;: &quot;exp(s*T)/T - 1/T (T=2)&quot;,
+  &quot;readme_formula&quot;: &quot;P_k - 1&quot;,
+  &quot;official_formula&quot;: &quot;min(exp(s*T)/T, 2) - 0.6&quot;
+}</pre>
+    <pre>{&quot;abs_exact&quot;: 1e-06}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A04</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>Eq.7 的求和下标与方差分母自洽</h3>
+  <p class="ref">Eq.2, Eq.6, Eq.7, p.5 · notebook: 01_formula_audit</p>
+  <p class="notes">Eq.2/6 写作 k∈[0,K]（K+1 项），Eq.7 却除以 K。K 个真实标签时应使用 K 项、除数 K；若按字面补一项，最大 z-score 会明显变化。实现采用 K 项。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;energy&quot;: [
+    10.0,
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    5.0
+  ],
+  &quot;K&quot;: 10,
+  &quot;zscore_K_terms_divisor_K&quot;: 3.0,
+  &quot;zscore_K_plus_1_terms_divisor_K_plus_1&quot;: 2.345207879911715,
+  &quot;max_zscore_shift&quot;: 0.6547921200882851
+}</pre>
+    <pre>{&quot;max_zscore_shift&quot;: 0.05}</pre>
+  </details>
+</article>
+<article class="claim v-CONFIRMED">
+  <header>
+    <span class="cid">A05</span>
+    <span class="badge" style="background:#1b7f3a">CONFIRMED · 已确认</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>Eq.9-10 的 TE/NTE 恒等式及均值为 0</h3>
+  <p class="ref">Eq.9-10, p.6 · notebook: 01_formula_audit</p>
+  <p class="notes">TE=exp(s&#x27;-s) 与 NTE=TE−1 在数值上成立；由于 softmax 每行和为 1，逐样本的 mean_k(s&#x27;_k−s_k)=0 严格成立，论文用 e^0=1 作基准是合理的。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;max_identity_error&quot;: 0.0,
+  &quot;max_abs_mean_difference_over_labels&quot;: 4.3194614551822494e-17,
+  &quot;max_softmax_sum_error&quot;: 2.220446049250313e-16
+}</pre>
+    <pre>{&quot;abs_exact&quot;: 1e-09}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A06</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>Eq.9-10 与 Eq.4 使用同一温度 T</h3>
+  <p class="ref">Eq.4, Eq.9-10, p.5-6 · notebook: 01_formula_audit</p>
+  <p class="notes">Eq.4 的能量是 exp(s·T)/T，而 Eq.9/10 的比值把 T 消掉了（等价于 T=1）。形式不一致；实际影响用 argmax 一致率衡量。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;argmax_agreement_t1_vs_t2&quot;: 0.953125,
+  &quot;temperature_paper&quot;: 2.0
+}</pre>
+    <pre>{&quot;argmax_agreement&quot;: 0.99}</pre>
+  </details>
+</article>
+<article class="claim v-PARTIAL">
+  <header>
+    <span class="cid">A07</span>
+    <span class="badge" style="background:#9a6700">PARTIAL · 部分成立</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>Lemma 2 证明中 Eq.30 的代数等价性</h3>
+  <p class="ref">Appendix C, Eq.30, p.16 · notebook: 02_theory</p>
+  <p class="notes">在 a+t&gt;0、b≥0、n&gt;1（像素空间的通常取值）时，Eq.29 与 Eq.30 逐元素等价。但推导中间除以了 a+t，论文未声明该符号条件；当 a+t&lt;0 时等价关系翻转，实测出现大量反例。结论：代数正确但有未声明的前提，故记 PARTIAL。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;samples_positive_u&quot;: 4000,
+  &quot;mismatches_positive_u&quot;: 0,
+  &quot;samples_negative_u&quot;: 4000,
+  &quot;mismatches_negative_u&quot;: 3356,
+  &quot;coefficient_2n_over_1_plus_n&quot;: [
+    1.3333333333333333,
+    1.5,
+    1.6,
+    1.8181818181818181,
+    1.9801980198019802
+  ],
+  &quot;coefficient_range_ok&quot;: true
+}</pre>
+    <pre>{&quot;abs_exact&quot;: 1e-09}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A08</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>Lemma 2 对每一种损坏都成立</h3>
+  <p class="ref">Lemma 2, p.6; Appendix C · notebook: 02_theory</p>
+  <p class="notes">Lemma 2 的原文是逐图逐损坏的普遍断言（st&gt;s&#x27;_t 且 s_k1&lt;s&#x27;_k1）。在缩比后门模型上统计全部 80 种损坏：同时满足两条的 (图,损坏) 比例为 76.01%，故普遍形式被反例否定；但按损坏类型取平均后，70.0% 的损坏呈现聚合方向，与论文插图想表达的总体趋势一致。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;scope&quot;: &quot;proxy backdoored SmallCNN, 80 corruptions&quot;,
+  &quot;n_images&quot;: 99,
+  &quot;universal_fraction&quot;: 0.76010101010101,
+  &quot;per_corruption_fraction&quot;: [
+    0.6565656565656566,
+    0.6565656565656566,
+    0.696969696969697,
+    0.8181818181818182,
+    0.8181818181818182,
+    0.8282828282828283,
+    0.8484848484848485,
+    0.8585858585858586,
+    0.0707070707070707,
+    0.06060606060606061,
+    0.050505050505050504,
+    0.06060606060606061,
+    0.9090909090909091,
+    0.8787878787878788,
+    0.8585858585858586,
+    0.8585858585858586,
+    0.9393939393939394,
+    0.9292929292929293,
+    0.9292929292929293,
+    0.9292929292929293,
+    0.9595959595959596,
+    0.9595959595959596,
+    0.9191919191919192,
+    0.898989898989899,
+    0.9494949494949495,
+    0.9494949494949495,
+    0.9494949494949495,
+    0.9494949494949495,
+    0.41414141414141414,
+    0.45454545454545453,
+    0.5252525252525253,
+    0.6161616161616161,
+    0.5757575757575758,
+    0.5555555555555556,
+    0.5757575757575758,
+    0.7171717171717171,
+    0.6767676767676768,
+    0.6666666666666666,
+    0.6464646464646465,
+    0.6767676767676768,
+    1.0,
+    0.98989898989899,
+    0.98989898989899,
+    0.98989898989899,
+    0.98989898989899,
+    0.98989898989899,
+    0.98989898989899,
+    0.98989898989899,
+    0.9696969696969697,
+    0.9393939393939394,
+    0.9494949494949495,
+    0.9595959595959596,
+    0.7474747474747475,
+    0.7171717171717171,
+    0.8383838383838383,
+    0.8484848484848485,
+    0.8585858585858586,
+    0.9292929292929293,
+    0.9797979797979798,
+    0.9696969696969697,
+    0.4444444444444444,
+    0.4444444444444444,
+    0.46464646464646464,
+    0.43434343434343436,
+    0.24242424242424243,
+    0.3434343434343434,
+    0.35353535353535354,
+    0.46464646464646464,
+    0.8686868686868687,
+    0.8080808080808081,
+    0.7575757575757576,
+    0.7777777777777778,
+    0.9797979797979798,
+    0.9090909090909091,
+    0.8787878787878788,
+    0.8787878787878788,
+    0.9797979797979798,
+    0.9494949494949495,
+    0.9494949494949495,
+    0.9494949494949495
+  ],
+  &quot;aggregate_fraction&quot;: 0.7,
+  &quot;mean_target_drop&quot;: 0.24941751937017095,
+  &quot;mean_gt_gain&quot;: 0.07560077808053599,
+  &quot;worst_corruptions&quot;: [
+    {
+      &quot;corruption&quot;: &quot;impulse_noise@3&quot;,
+      &quot;fraction&quot;: 0.050505050505050504,
+      &quot;mean_target_drop&quot;: -0.049040239181320805,
+      &quot;mean_gt_gain&quot;: -0.033456799340626564
+    },
+    {
+      &quot;corruption&quot;: &quot;impulse_noise@4&quot;,
+      &quot;fraction&quot;: 0.06060606060606061,
+      &quot;mean_target_drop&quot;: -0.05490813416261663,
+      &quot;mean_gt_gain&quot;: -0.03850733307689454
+    },
+    {
+      &quot;corruption&quot;: &quot;impulse_noise@2&quot;,
+      &quot;fraction&quot;: 0.06060606060606061,
+      &quot;mean_target_drop&quot;: -0.053219335077293435,
+      &quot;mean_gt_gain&quot;: -0.03685878071528914
+    },
+    {
+      &quot;corruption&quot;: &quot;impulse_noise@1&quot;,
+      &quot;fraction&quot;: 0.0707070707070707,
+      &quot;mean_target_drop&quot;: -0.04456525776287414,
+      &quot;mean_gt_gain&quot;: -0.02918597617090725
+    },
+    {
+      &quot;corruption&quot;: &quot;spatter@1&quot;,
+      &quot;fraction&quot;: 0.24242424242424243,
+      &quot;mean_target_drop&quot;: -0.001613112707022473,
+      &quot;mean_gt_gain&quot;: 0.0005122890096671711
+    }
+  ]
+}</pre>
+    <pre>{&quot;universal_fraction&quot;: 1.0, &quot;aggregate_fraction&quot;: 0.9}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A09</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>Lemma 1（脏标签）的 NTK 核和占优</h3>
+  <p class="ref">Lemma 1, p.4; Appendix A Eq.15-20 · notebook: 02_theory</p>
+  <p class="notes">按 Eq.13 的 NTK 核 K=e^{-2γ||x-x&#x27;||²}，在真实 CIFAR-10 像素上计算目标类与其他类的核和；γ 由查询-训练距离中位数标定，并报告 0.5×/1×/2× 的敏感性。两个情形分开看：目标类样本数多于其他类（190 vs 100）时目标核和几乎总是最大；两类样本数相等（100 vs 100）时只有 8% 的查询满足 Lemma 1。Lemma 1 的原文没有样本数条件，因此等量情形是合法反例，判 CONTRADICTED；更大的目标类会机械地带来更大的核和，这部分不能算作对引理的验证。这是对论文证明所用替代模型的复算，不是对训练网络的证明。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;cases&quot;: {
+    &quot;case1_nt_gt_nk2&quot;: {
+      &quot;gamma&quot;: 0.004766470856568327,
+      &quot;gamma_multipliers&quot;: {
+        &quot;0.5&quot;: 1.0,
+        &quot;1.0&quot;: 1.0,
+        &quot;2.0&quot;: 0.9444444444444444
+      },
+      &quot;n_target&quot;: 190,
+      &quot;n_other_per_class&quot;: 100
+    },
+    &quot;case2_nt_eq_nk2&quot;: {
+      &quot;gamma&quot;: 0.004754301367398475,
+      &quot;gamma_multipliers&quot;: {
+        &quot;0.5&quot;: 0.08333333333333333,
+        &quot;1.0&quot;: 0.08333333333333333,
+        &quot;2.0&quot;: 0.041666666666666664
+      },
+      &quot;n_target&quot;: 100,
+      &quot;n_other_per_class&quot;: 100
+    }
+  },
+  &quot;min_fraction_at_gamma_star&quot;: 0.08333333333333333,
+  &quot;min_fraction_across_gamma&quot;: 0.041666666666666664
+}</pre>
+    <pre>{&quot;dominance_fraction&quot;: 0.9}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A10</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>Lemma 1（干净标签）的 NTK 核和占优</h3>
+  <p class="ref">Appendix G.3, Eq.35-36, p.26 · notebook: 02_theory</p>
+  <p class="notes">Eq.35 声称 e^{-2γ||v-T||²} ≥ e^{-2γ(||v||²+||T||²)}（v=x+T-x_t），该式仅在 ⟨v,T⟩≥0 时成立。反例 a=0,t=1,b=1.5,n=2：v=-0.5，左边 e^{-4.5} 小于右边 e^{-2.5}，方向相反，故干净标签分支的证明步骤无效。另外在干净标签协议下做核和模拟，目标类并不占优。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;counterexample&quot;: {
+    &quot;a&quot;: 0.0,
+    &quot;t&quot;: 1.0,
+    &quot;b&quot;: 1.5,
+    &quot;n&quot;: 2,
+    &quot;eq29_holds&quot;: true,
+    &quot;eq30_holds&quot;: true,
+    &quot;eq35_lhs&quot;: 0.011108996538242306,
+    &quot;eq35_rhs&quot;: 0.0820849986238988,
+    &quot;eq35_claimed_direction_holds&quot;: false
+  },
+  &quot;ntk_clean_label&quot;: {
+    &quot;clean_label&quot;: {
+      &quot;gamma&quot;: 0.0048220255671247575,
+      &quot;gamma_multipliers&quot;: {
+        &quot;0.5&quot;: 0.18055555555555555,
+        &quot;1.0&quot;: 0.20833333333333334,
+        &quot;2.0&quot;: 0.2222222222222222
+      },
+      &quot;n_target&quot;: 100,
+      &quot;n_other_per_class&quot;: 100
+    }
+  },
+  &quot;min_fraction_at_gamma_star&quot;: 0.20833333333333334
+}</pre>
+    <pre>{&quot;dominance_fraction&quot;: 0.9}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A11</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>BA 下界 (K-1)/K × ba 对所有 Table 4 行成立</h3>
+  <p class="ref">Sec. 5.2, p.8; Table 4, p.9 · notebook: 03_table_audit</p>
+  <p class="notes">按 Sec. 5.2 的下界 (K−1)/K×ba 逐行核对 Table 4。15 行中 2 行低于下界（容差 0.005），说明该式是经验观察而非可证定理，或表中数字有舍入/实验偏差。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;rows&quot;: [
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;BadNets&quot;,
+      &quot;K&quot;: 10,
+      &quot;ba&quot;: 91.22,
+      &quot;bound&quot;: 82.098,
+      &quot;ebba_ba&quot;: 89.92,
+      &quot;margin&quot;: 7.822000000000003,
+      &quot;violates&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;Blend&quot;,
+      &quot;K&quot;: 10,
+      &quot;ba&quot;: 91.35,
+      &quot;bound&quot;: 82.215,
+      &quot;ebba_ba&quot;: 89.72,
+      &quot;margin&quot;: 7.5049999999999955,
+      &quot;violates&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;WaNet&quot;,
+      &quot;K&quot;: 10,
+      &quot;ba&quot;: 91.25,
+      &quot;bound&quot;: 82.125,
+      &quot;ebba_ba&quot;: 89.96,
+      &quot;margin&quot;: 7.834999999999994,
+      &quot;violates&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;FIBA&quot;,
+      &quot;K&quot;: 10,
+      &quot;ba&quot;: 91.08,
+      &quot;bound&quot;: 81.972,
+      &quot;ebba_ba&quot;: 90.02,
+      &quot;margin&quot;: 8.048000000000002,
+      &quot;violates&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;DUBA&quot;,
+      &quot;K&quot;: 10,
+      &quot;ba&quot;: 91.55,
+      &quot;bound&quot;: 82.395,
+      &quot;ebba_ba&quot;: 89.52,
+      &quot;margin&quot;: 7.125,
+      &quot;violates&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;BadNets&quot;,
+      &quot;K&quot;: 43,
+      &quot;ba&quot;: 99.14,
+      &quot;bound&quot;: 96.83441860465116,
+      &quot;ebba_ba&quot;: 99.06,
+      &quot;margin&quot;: 2.22558139534884,
+      &quot;violates&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;Blend&quot;,
+      &quot;K&quot;: 43,
+      &quot;ba&quot;: 99.15,
+      &quot;bound&quot;: 96.84418604651162,
+      &quot;ebba_ba&quot;: 98.92,
+      &quot;margin&quot;: 2.075813953488378,
+      &quot;violates&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;WaNet&quot;,
+      &quot;K&quot;: 43,
+      &quot;ba&quot;: 99.07,
+      &quot;bound&quot;: 96.76604651162789,
+      &quot;ebba_ba&quot;: 98.79,
+      &quot;margin&quot;: 2.023953488372115,
+      &quot;violates&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;FIBA&quot;,
+      &quot;K&quot;: 43,
+      &quot;ba&quot;: 99.22,
+      &quot;bound&quot;: 96.91255813953488,
+      &quot;ebba_ba&quot;: 98.36,
+      &quot;margin&quot;: 1.4474418604651191,
+      &quot;violates&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;DUBA&quot;,
+      &quot;K&quot;: 43,
+      &quot;ba&quot;: 99.21,
+      &quot;bound&quot;: 96.9027906976744,
+      &quot;ebba_ba&quot;: 98.94,
+      &quot;margin&quot;: 2.037209302325593,
+      &quot;violates&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;BadNets&quot;,
+      &quot;K&quot;: 100,
+      &quot;ba&quot;: 88.56,
+      &quot;bound&quot;: 87.6744,
+      &quot;ebba_ba&quot;: 88.19,
+      &quot;margin&quot;: 0.5155999999999921,
+      &quot;violates&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;Blend&quot;,
+      &quot;K&quot;: 100,
+      &quot;ba&quot;: 88.39,
+      &quot;bound&quot;: 87.5061,
+      &quot;ebba_ba&quot;: 88.36,
+      &quot;margin&quot;: 0.8538999999999959,
+      &quot;violates&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;WaNet&quot;,
+      &quot;K&quot;: 100,
+      &quot;ba&quot;: 88.62,
+      &quot;bound&quot;: 87.7338,
+      &quot;ebba_ba&quot;: 87.94,
+      &quot;margin&quot;: 0.2061999999999955,
+      &quot;violates&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;FIBA&quot;,
+      &quot;K&quot;: 100,
+      &quot;ba&quot;: 89.07,
+      &quot;bound&quot;: 88.1793,
+      &quot;ebba_ba&quot;: 88.09,
+      &quot;margin&quot;: -0.08929999999999438,
+      &quot;violates&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;DUBA&quot;,
+      &quot;K&quot;: 100,
+      &quot;ba&quot;: 88.92,
+      &quot;bound&quot;: 88.0308,
+      &quot;ebba_ba&quot;: 87.91,
+      &quot;margin&quot;: -0.12080000000000268,
+      &quot;violates&quot;: true
+    }
+  ],
+  &quot;n_violations&quot;: 2
+}</pre>
+    <pre>{&quot;abs_margin&quot;: 0.005}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A12</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>所有攻击的 ASR 均训练到 98.8% 以上</h3>
+  <p class="ref">Sec. 5.1, p.7; Table 4 No Defense 列 · notebook: 03_table_audit</p>
+  <p class="notes">论文 Sec. 5.1 称所有攻击均训练到 ASR 98.8% 以上。Table 4 的 No Defense 列中有 2 行低于 98.8%（ImageNet Blend 98.62、ImageNet FIBA 98.59），属于可直接核对的数值反例。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;rows&quot;: [
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;BadNets&quot;,
+      &quot;no_defense_asr&quot;: 99.36,
+      &quot;passes&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;Blend&quot;,
+      &quot;no_defense_asr&quot;: 99.97,
+      &quot;passes&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;WaNet&quot;,
+      &quot;no_defense_asr&quot;: 99.78,
+      &quot;passes&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;FIBA&quot;,
+      &quot;no_defense_asr&quot;: 99.26,
+      &quot;passes&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;DUBA&quot;,
+      &quot;no_defense_asr&quot;: 99.98,
+      &quot;passes&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;BadNets&quot;,
+      &quot;no_defense_asr&quot;: 99.62,
+      &quot;passes&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;Blend&quot;,
+      &quot;no_defense_asr&quot;: 99.72,
+      &quot;passes&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;WaNet&quot;,
+      &quot;no_defense_asr&quot;: 99.81,
+      &quot;passes&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;FIBA&quot;,
+      &quot;no_defense_asr&quot;: 98.91,
+      &quot;passes&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;DUBA&quot;,
+      &quot;no_defense_asr&quot;: 99.92,
+      &quot;passes&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;BadNets&quot;,
+      &quot;no_defense_asr&quot;: 99.22,
+      &quot;passes&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;Blend&quot;,
+      &quot;no_defense_asr&quot;: 98.62,
+      &quot;passes&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;WaNet&quot;,
+      &quot;no_defense_asr&quot;: 99.27,
+      &quot;passes&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;FIBA&quot;,
+      &quot;no_defense_asr&quot;: 98.59,
+      &quot;passes&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;DUBA&quot;,
+      &quot;no_defense_asr&quot;: 99.36,
+      &quot;passes&quot;: true
+    }
+  ],
+  &quot;n_failures&quot;: 2,
+  &quot;min_asr&quot;: 98.59
+}</pre>
+    <pre>{&quot;threshold&quot;: 98.8}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A13</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>Table 6 的 GTSRB 测试集大小与标准数据集一致</h3>
+  <p class="ref">Table 6, p.18 · notebook: 03_table_audit</p>
+  <p class="notes">GTSRB 测试集的标准大小是 12630，论文 Table 6 写成 12603（数字转置）。训练集 39209 与标准值一致，因此这不是“使用了子集”，而是笔误。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;stated_test&quot;: 12603,
+  &quot;standard_test&quot;: 12630,
+  &quot;difference&quot;: -27,
+  &quot;stated_train&quot;: 39209,
+  &quot;standard_train&quot;: 39209,
+  &quot;train_matches&quot;: true,
+  &quot;looks_like_transposition&quot;: false
+}</pre>
+    <pre>{&quot;exact_size&quot;: 12630}</pre>
+  </details>
+</article>
+<article class="claim v-CONFIRMED">
+  <header>
+    <span class="cid">A14</span>
+    <span class="badge" style="background:#1b7f3a">CONFIRMED · 已确认</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>四种聚类方法的 PDR 差异很小（Table 5/7）</h3>
+  <p class="ref">Table 5, p.9; Table 7, p.24 · notebook: 03_table_audit</p>
+  <p class="notes">Table 5 与 Table 7（正文与附录）数值完全相同，均为 HC 0.972、Birch 0.968、Mean Shift 0.965、DBSCAN 0.975。极差 0.010，支持“聚类方法影响很小”的说法；但同一组数字在两处重复出现，不构成独立证据。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;table5&quot;: {
+    &quot;HC&quot;: 0.972,
+    &quot;Birch&quot;: 0.968,
+    &quot;Mean Shift&quot;: 0.965,
+    &quot;DBSCAN&quot;: 0.975
+  },
+  &quot;table7&quot;: {
+    &quot;HC&quot;: 0.972,
+    &quot;Birch&quot;: 0.968,
+    &quot;Mean Shift&quot;: 0.965,
+    &quot;DBSCAN&quot;: 0.975
+  },
+  &quot;tables_identical&quot;: true,
+  &quot;max_spread&quot;: 0.010000000000000009,
+  &quot;best_method&quot;: &quot;DBSCAN&quot;
+}</pre>
+    <pre>{&quot;max_pdr_spread&quot;: 0.05}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A15</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>Table 4 文字结论：EBBA+ 的 BA 最优、ASR 更低</h3>
+  <p class="ref">Sec. 5.2, p.7-8; Table 4, p.9 · notebook: 03_table_audit</p>
+  <p class="notes">Table 4 标题称 EBBA+ 的 BA 在所有方法中最好、ASR 与之相当。逐行核对：BA 严格最高 13/15 行，ASR 严格最低 5/15 行。论文正文的措辞是“lower or competitive”，并非全面最优；标题中的“best”对 2 行（Cifar10 Blend、Cifar10 DUBA）不成立。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;rows&quot;: [
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;BadNets&quot;,
+      &quot;ebba_ba&quot;: 89.92,
+      &quot;best_other_ba&quot;: 89.72,
+      &quot;ba_best&quot;: true,
+      &quot;ebba_asr&quot;: 2.92,
+      &quot;best_other_asr&quot;: 1.46,
+      &quot;asr_lowest&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;Blend&quot;,
+      &quot;ebba_ba&quot;: 89.72,
+      &quot;best_other_ba&quot;: 90.06,
+      &quot;ba_best&quot;: false,
+      &quot;ebba_asr&quot;: 5.79,
+      &quot;best_other_asr&quot;: 1.59,
+      &quot;asr_lowest&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;WaNet&quot;,
+      &quot;ebba_ba&quot;: 89.96,
+      &quot;best_other_ba&quot;: 89.3,
+      &quot;ba_best&quot;: true,
+      &quot;ebba_asr&quot;: 4.36,
+      &quot;best_other_asr&quot;: 3.96,
+      &quot;asr_lowest&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;FIBA&quot;,
+      &quot;ebba_ba&quot;: 90.02,
+      &quot;best_other_ba&quot;: 89.75,
+      &quot;ba_best&quot;: true,
+      &quot;ebba_asr&quot;: 7.88,
+      &quot;best_other_asr&quot;: 2.85,
+      &quot;asr_lowest&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;DUBA&quot;,
+      &quot;ebba_ba&quot;: 89.52,
+      &quot;best_other_ba&quot;: 90.95,
+      &quot;ba_best&quot;: false,
+      &quot;ebba_asr&quot;: 5.24,
+      &quot;best_other_asr&quot;: 4.09,
+      &quot;asr_lowest&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;BadNets&quot;,
+      &quot;ebba_ba&quot;: 99.06,
+      &quot;best_other_ba&quot;: 97.82,
+      &quot;ba_best&quot;: true,
+      &quot;ebba_asr&quot;: 1.79,
+      &quot;best_other_asr&quot;: 0.72,
+      &quot;asr_lowest&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;Blend&quot;,
+      &quot;ebba_ba&quot;: 98.92,
+      &quot;best_other_ba&quot;: 97.57,
+      &quot;ba_best&quot;: true,
+      &quot;ebba_asr&quot;: 2.72,
+      &quot;best_other_asr&quot;: 2.36,
+      &quot;asr_lowest&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;WaNet&quot;,
+      &quot;ebba_ba&quot;: 98.79,
+      &quot;best_other_ba&quot;: 97.5,
+      &quot;ba_best&quot;: true,
+      &quot;ebba_asr&quot;: 1.37,
+      &quot;best_other_asr&quot;: 1.92,
+      &quot;asr_lowest&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;FIBA&quot;,
+      &quot;ebba_ba&quot;: 98.36,
+      &quot;best_other_ba&quot;: 96.68,
+      &quot;ba_best&quot;: true,
+      &quot;ebba_asr&quot;: 1.47,
+      &quot;best_other_asr&quot;: 1.92,
+      &quot;asr_lowest&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;DUBA&quot;,
+      &quot;ebba_ba&quot;: 98.94,
+      &quot;best_other_ba&quot;: 97.83,
+      &quot;ba_best&quot;: true,
+      &quot;ebba_asr&quot;: 3.72,
+      &quot;best_other_asr&quot;: 3.33,
+      &quot;asr_lowest&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;BadNets&quot;,
+      &quot;ebba_ba&quot;: 88.19,
+      &quot;best_other_ba&quot;: 87.09,
+      &quot;ba_best&quot;: true,
+      &quot;ebba_asr&quot;: 1.51,
+      &quot;best_other_asr&quot;: 2.28,
+      &quot;asr_lowest&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;Blend&quot;,
+      &quot;ebba_ba&quot;: 88.36,
+      &quot;best_other_ba&quot;: 86.92,
+      &quot;ba_best&quot;: true,
+      &quot;ebba_asr&quot;: 1.32,
+      &quot;best_other_asr&quot;: 5.04,
+      &quot;asr_lowest&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;WaNet&quot;,
+      &quot;ebba_ba&quot;: 87.94,
+      &quot;best_other_ba&quot;: 86.9,
+      &quot;ba_best&quot;: true,
+      &quot;ebba_asr&quot;: 4.76,
+      &quot;best_other_asr&quot;: 3.02,
+      &quot;asr_lowest&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;FIBA&quot;,
+      &quot;ebba_ba&quot;: 88.09,
+      &quot;best_other_ba&quot;: 87.15,
+      &quot;ba_best&quot;: true,
+      &quot;ebba_asr&quot;: 1.92,
+      &quot;best_other_asr&quot;: 2.3,
+      &quot;asr_lowest&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;DUBA&quot;,
+      &quot;ebba_ba&quot;: 87.91,
+      &quot;best_other_ba&quot;: 86.69,
+      &quot;ba_best&quot;: true,
+      &quot;ebba_asr&quot;: 2.96,
+      &quot;best_other_asr&quot;: 2.06,
+      &quot;asr_lowest&quot;: false
+    }
+  ],
+  &quot;n_rows&quot;: 15,
+  &quot;ba_best_rows&quot;: 13,
+  &quot;asr_lowest_rows&quot;: 5,
+  &quot;asr_below_no_defense_rows&quot;: 15
+}</pre>
+    <pre>{&quot;min_best_ba_rows&quot;: 15, &quot;min_best_asr_rows&quot;: 15}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A16</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>Table 3 声称 EBBA+ 在 PDR 和 F1 上全面最优</h3>
+  <p class="ref">Sec. 5.2, p.7; Table 3, p.8 · notebook: 03_table_audit</p>
+  <p class="notes">Table 3 标题称 EBBA+ 在 PDR 与 F1 上优于所有对比方法。15 行中有 5 行在至少一个指标上严格劣于最好的基线（Cifar10 BadNets 的 PDR、Cifar10 Blend 的 F1、Cifar10 FIBA 的 PDR、GTSRB WaNet 的 PDR、ImageNet BadNets 的 F1），故“全面最优”不成立。另有若干平局，未计入反例。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;rows&quot;: [
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;BadNets&quot;,
+      &quot;ebba_pdr&quot;: 0.96,
+      &quot;best_other_pdr&quot;: 0.97,
+      &quot;ebba_f1&quot;: 0.96,
+      &quot;best_other_f1&quot;: 0.94,
+      &quot;pdr_worse&quot;: true,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;Blend&quot;,
+      &quot;ebba_pdr&quot;: 0.95,
+      &quot;best_other_pdr&quot;: 0.95,
+      &quot;ebba_f1&quot;: 0.94,
+      &quot;best_other_f1&quot;: 0.95,
+      &quot;pdr_worse&quot;: false,
+      &quot;f1_worse&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;WaNet&quot;,
+      &quot;ebba_pdr&quot;: 0.95,
+      &quot;best_other_pdr&quot;: 0.93,
+      &quot;ebba_f1&quot;: 0.94,
+      &quot;best_other_f1&quot;: 0.92,
+      &quot;pdr_worse&quot;: false,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;FIBA&quot;,
+      &quot;ebba_pdr&quot;: 0.95,
+      &quot;best_other_pdr&quot;: 0.96,
+      &quot;ebba_f1&quot;: 0.95,
+      &quot;best_other_f1&quot;: 0.94,
+      &quot;pdr_worse&quot;: true,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;DUBA&quot;,
+      &quot;ebba_pdr&quot;: 0.96,
+      &quot;best_other_pdr&quot;: 0.95,
+      &quot;ebba_f1&quot;: 0.95,
+      &quot;best_other_f1&quot;: 0.94,
+      &quot;pdr_worse&quot;: false,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;BadNets&quot;,
+      &quot;ebba_pdr&quot;: 0.98,
+      &quot;best_other_pdr&quot;: 0.98,
+      &quot;ebba_f1&quot;: 0.97,
+      &quot;best_other_f1&quot;: 0.96,
+      &quot;pdr_worse&quot;: false,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;Blend&quot;,
+      &quot;ebba_pdr&quot;: 0.97,
+      &quot;best_other_pdr&quot;: 0.95,
+      &quot;ebba_f1&quot;: 0.96,
+      &quot;best_other_f1&quot;: 0.96,
+      &quot;pdr_worse&quot;: false,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;WaNet&quot;,
+      &quot;ebba_pdr&quot;: 0.96,
+      &quot;best_other_pdr&quot;: 0.97,
+      &quot;ebba_f1&quot;: 0.95,
+      &quot;best_other_f1&quot;: 0.95,
+      &quot;pdr_worse&quot;: true,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;FIBA&quot;,
+      &quot;ebba_pdr&quot;: 0.95,
+      &quot;best_other_pdr&quot;: 0.93,
+      &quot;ebba_f1&quot;: 0.95,
+      &quot;best_other_f1&quot;: 0.91,
+      &quot;pdr_worse&quot;: false,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;DUBA&quot;,
+      &quot;ebba_pdr&quot;: 0.96,
+      &quot;best_other_pdr&quot;: 0.9,
+      &quot;ebba_f1&quot;: 0.95,
+      &quot;best_other_f1&quot;: 0.93,
+      &quot;pdr_worse&quot;: false,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;BadNets&quot;,
+      &quot;ebba_pdr&quot;: 0.98,
+      &quot;best_other_pdr&quot;: 0.98,
+      &quot;ebba_f1&quot;: 0.95,
+      &quot;best_other_f1&quot;: 0.96,
+      &quot;pdr_worse&quot;: false,
+      &quot;f1_worse&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;Blend&quot;,
+      &quot;ebba_pdr&quot;: 0.98,
+      &quot;best_other_pdr&quot;: 0.95,
+      &quot;ebba_f1&quot;: 0.95,
+      &quot;best_other_f1&quot;: 0.93,
+      &quot;pdr_worse&quot;: false,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;WaNet&quot;,
+      &quot;ebba_pdr&quot;: 0.96,
+      &quot;best_other_pdr&quot;: 0.94,
+      &quot;ebba_f1&quot;: 0.94,
+      &quot;best_other_f1&quot;: 0.92,
+      &quot;pdr_worse&quot;: false,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;FIBA&quot;,
+      &quot;ebba_pdr&quot;: 0.96,
+      &quot;best_other_pdr&quot;: 0.94,
+      &quot;ebba_f1&quot;: 0.95,
+      &quot;best_other_f1&quot;: 0.92,
+      &quot;pdr_worse&quot;: false,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;DUBA&quot;,
+      &quot;ebba_pdr&quot;: 0.96,
+      &quot;best_other_pdr&quot;: 0.93,
+      &quot;ebba_f1&quot;: 0.95,
+      &quot;best_other_f1&quot;: 0.91,
+      &quot;pdr_worse&quot;: false,
+      &quot;f1_worse&quot;: false
+    }
+  ],
+  &quot;n_violations&quot;: 5,
+  &quot;violations&quot;: [
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;BadNets&quot;,
+      &quot;ebba_pdr&quot;: 0.96,
+      &quot;best_other_pdr&quot;: 0.97,
+      &quot;ebba_f1&quot;: 0.96,
+      &quot;best_other_f1&quot;: 0.94,
+      &quot;pdr_worse&quot;: true,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;Blend&quot;,
+      &quot;ebba_pdr&quot;: 0.95,
+      &quot;best_other_pdr&quot;: 0.95,
+      &quot;ebba_f1&quot;: 0.94,
+      &quot;best_other_f1&quot;: 0.95,
+      &quot;pdr_worse&quot;: false,
+      &quot;f1_worse&quot;: true
+    },
+    {
+      &quot;dataset&quot;: &quot;Cifar10&quot;,
+      &quot;attack&quot;: &quot;FIBA&quot;,
+      &quot;ebba_pdr&quot;: 0.95,
+      &quot;best_other_pdr&quot;: 0.96,
+      &quot;ebba_f1&quot;: 0.95,
+      &quot;best_other_f1&quot;: 0.94,
+      &quot;pdr_worse&quot;: true,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;GTSRB&quot;,
+      &quot;attack&quot;: &quot;WaNet&quot;,
+      &quot;ebba_pdr&quot;: 0.96,
+      &quot;best_other_pdr&quot;: 0.97,
+      &quot;ebba_f1&quot;: 0.95,
+      &quot;best_other_f1&quot;: 0.95,
+      &quot;pdr_worse&quot;: true,
+      &quot;f1_worse&quot;: false
+    },
+    {
+      &quot;dataset&quot;: &quot;ImageNet&quot;,
+      &quot;attack&quot;: &quot;BadNets&quot;,
+      &quot;ebba_pdr&quot;: 0.98,
+      &quot;best_other_pdr&quot;: 0.98,
+      &quot;ebba_f1&quot;: 0.95,
+      &quot;best_other_f1&quot;: 0.96,
+      &quot;pdr_worse&quot;: false,
+      &quot;f1_worse&quot;: true
+    }
+  ]
+}</pre>
+    <pre>{&quot;max_violations&quot;: 0}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A17</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>Fig.80 的文字阈值方向与 Eq.8 一致</h3>
+  <p class="ref">Appendix F, p.24; Eq.8, p.5 · notebook: 01_formula_audit</p>
+  <p class="notes">Appendix F 第一句称“值小于 0 判为后门”，随后又说 clean&lt;0、poisoned&gt;0，与 Eq.8（大于 λσ 判为后门）矛盾。应以 Eq.8 为准，第一句是笔误。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;first_sentence&quot;: &quot;If this value is lower than 0, the model is considered as backdoored.&quot;,
+  &quot;second_sentence&quot;: &quot;the value for the clean model is less than 0, while the value for the poisoned model is greater than 0&quot;,
+  &quot;eq8_direction&quot;: &quot;E_k&#x27; - mu &gt; lambda * sigma  =&gt;  backdoored&quot;,
+  &quot;first_vs_eq8&quot;: &quot;opposite&quot;,
+  &quot;second_vs_eq8&quot;: &quot;consistent&quot;
+}</pre>
+    <pre>{&quot;textual_consistency&quot;: true}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A18</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>官方代码实现了论文的无任务样本、均衡选择与 80 种损坏协议</h3>
+  <p class="ref">Sec. 4.1, Sec. 5.1; official notebook · notebook: 03_table_audit</p>
+  <p class="notes">对官方 PaddlePaddle Notebook 做静态解析（不执行）。8 项协议检查中7 项与论文不符：使用 GTSRB 验证集（任务相关）、无每类均衡、仅 704 张图、64 种损坏（含除以 1）、TE 截断 5/4 不一致、无聚类步骤。它能作为公式与流程的交叉参考，但不是论文实验的完整实现。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;notebook&quot;: &quot;/app/reference/EBBA.ipynb&quot;,
+  &quot;n_code_cells&quot;: 22,
+  &quot;checks&quot;: [
+    {
+      &quot;id&quot;: &quot;task_agnostic_pool&quot;,
+      &quot;paper&quot;: &quot;Internet images, task-agnostic&quot;,
+      &quot;official&quot;: &quot;GTSRB Final_Validation used as the image pool&quot;,
+      &quot;passes&quot;: false
+    },
+    {
+      &quot;id&quot;: &quot;per_class_balancing&quot;,
+      &quot;paper&quot;: &quot;keep N images per pseudo-label&quot;,
+      &quot;official&quot;: &quot;no balancing code found&quot;,
+      &quot;passes&quot;: false
+    },
+    {
+      &quot;id&quot;: &quot;sample_count&quot;,
+      &quot;paper&quot;: &quot;task-agnostic subset (paper does not fix a small count)&quot;,
+      &quot;official&quot;: &quot;11 batches x 64 = 704 images&quot;,
+      &quot;passes&quot;: false
+    },
+    {
+      &quot;id&quot;: &quot;corruption_count&quot;,
+      &quot;paper&quot;: &quot;80 corruption methods&quot;,
+      &quot;official&quot;: &quot;15 types x 4 severities + 4 divisions = 64&quot;,
+      &quot;passes&quot;: false
+    },
+    {
+      &quot;id&quot;: &quot;divide_by_one&quot;,
+      &quot;paper&quot;: &quot;division by positive integers &gt; 1&quot;,
+      &quot;official&quot;: &quot;division loop starts at j=1 (identity)&quot;,
+      &quot;passes&quot;: false
+    },
+    {
+      &quot;id&quot;: &quot;te_cap_consistency&quot;,
+      &quot;paper&quot;: &quot;a single definition, Eq. 9-10&quot;,
+      &quot;official&quot;: &quot;cap 5 in two helpers, cap 4 in another&quot;,
+      &quot;passes&quot;: false
+    },
+    {
+      &quot;id&quot;: &quot;clustering&quot;,
+      &quot;paper&quot;: &quot;t-SNE + Birch split poisoned/clean&quot;,
+      &quot;official&quot;: &quot;clustering step absent&quot;,
+      &quot;passes&quot;: false
+    },
+    {
+      &quot;id&quot;: &quot;ba_asr_evaluation&quot;,
+      &quot;paper&quot;: &quot;BA and ASR reported&quot;,
+      &quot;official&quot;: &quot;clean and patched validation sets evaluated separately&quot;,
+      &quot;passes&quot;: true
+    }
+  ],
+  &quot;n_failed&quot;: 7,
+  &quot;protocol_checks&quot;: 8
+}</pre>
+    <pre>{&quot;protocol_checks&quot;: 8}</pre>
+  </details>
+</article>
+<article class="claim v-PARTIAL">
+  <header>
+    <span class="cid">A19</span>
+    <span class="badge" style="background:#9a6700">PARTIAL · 部分成立</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>自适应攻击下 EBBA 的检测率超过 99%</h3>
+  <p class="ref">Appendix G.4, p.26 · notebook: 03_table_audit</p>
+  <p class="notes">Appendix G.4 列出 13 个软标签参数，并明确承认 0.985 时 EBBA 失效。按参数组计算通过率为 12/13 = 92.3%，低于 99%。若“检测率”指逐样本比例则无法从文中数值核实；因此该断言只能记 PARTIAL。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;settings&quot;: [
+    0.9,
+    0.6,
+    0.91,
+    0.92,
+    0.93,
+    0.94,
+    0.95,
+    0.96,
+    0.97,
+    0.98,
+    0.985,
+    0.99,
+    0.995
+  ],
+  &quot;n_settings&quot;: 13,
+  &quot;failing_settings&quot;: [
+    0.985
+  ],
+  &quot;setting_pass_rate&quot;: 0.9230769230769231,
+  &quot;paper_statement&quot;: &quot;only 0.985 makes EBBA confused; detection rate over 99%&quot;
+}</pre>
+    <pre>{&quot;min_detection_rate&quot;: 0.99}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">A20</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier A · exact</span>
+  </header>
+  <h3>λ=3 在 CIFAR-10（K=10）上可满足 Eq.8 的严格不等式</h3>
+  <p class="ref">Eq.7-8, p.5; Appendix F p.24; Table 2, p.8 · notebook: 01_formula_audit</p>
+  <p class="notes">对任意 K 维能量向量，max_k (E_k−μ)/σ ≤ √(K−1)。K=10 时上界恰为 3：只有其余 9 个标签能量完全相等才能取到，而 Eq.8 要求严格大于 λσ。因此论文在 CIFAR-10 上取 λ=3 时，检测裕量在数学上几乎不可能为正；其 λ 的可用区间 [1.8, 5.7] 与 K=43 的 GTSRB（上界 6.48）一致，说明 λ=3 是在 GTSRB 上标定后直接用于 CIFAR-10 的。若按 Eq.7 字面把求和写成 K+1 项，上界升到 √10≈3.16，λ=3 才勉强可达。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;K&quot;: 10,
+  &quot;lambda&quot;: 3.0,
+  &quot;supremum_z&quot;: 3.0,
+  &quot;z_extremal_equal_others&quot;: 3.0,
+  &quot;z_max_random_perturbations&quot;: 2.999999999999975,
+  &quot;z_with_phantom_K_plus_1&quot;: 3.143542838133274,
+  &quot;strict_margin_possible_K10&quot;: false
+}</pre>
+    <pre>{&quot;lambda&quot;: 3.0, &quot;max_zscore&quot;: 3.0}</pre>
+  </details>
+</article>
+<article class="claim v-PARTIAL">
+  <header>
+    <span class="cid">B01</span>
+    <span class="badge" style="background:#9a6700">PARTIAL · 部分成立</span>
+    <span class="tier">Tier B · proxy</span>
+  </header>
+  <h3>目标标签在干净/OOD 样本的 top 输出中更常见（Fig.1）</h3>
+  <p class="ref">Fig.1, p.2; Lemma 1 · notebook: 04_detection</p>
+  <p class="notes">在 5,000 张 CIFAR-100（任务无关代理）上统计目标标签在输出中的排名。后门模型的目标标签 top-3 频率应显著高于均匀基线 0.30；干净模型作为对照不应出现该偏移。只要有一种攻击出现该偏移即记 PARTIAL，全部没有才记 CONTRADICTED。按项目规则，缩比实证支持只记 PARTIAL。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;models&quot;: {
+    &quot;clean&quot;: {
+      &quot;mean_rank&quot;: 4.4708,
+      &quot;top1&quot;: 0.1074,
+      &quot;top3&quot;: 0.312,
+      &quot;uniform_mean_rank&quot;: 4.5
+    },
+    &quot;badnets&quot;: {
+      &quot;mean_rank&quot;: 1.695,
+      &quot;top1&quot;: 0.2198,
+      &quot;top3&quot;: 0.7326,
+      &quot;uniform_mean_rank&quot;: 4.5
+    },
+    &quot;blend&quot;: {
+      &quot;mean_rank&quot;: 4.406,
+      &quot;top1&quot;: 0.1222,
+      &quot;top3&quot;: 0.327,
+      &quot;uniform_mean_rank&quot;: 4.5
+    },
+    &quot;clean_control_ok&quot;: true
+  },
+  &quot;per_attack_passed&quot;: {
+    &quot;badnets&quot;: true,
+    &quot;blend&quot;: false
+  },
+  &quot;n_ood&quot;: 5000
+}</pre>
+    <pre>{&quot;top3_fraction&quot;: 0.5}</pre>
+  </details>
+</article>
+<article class="claim v-PARTIAL">
+  <header>
+    <span class="cid">B02</span>
+    <span class="badge" style="background:#9a6700">PARTIAL · 部分成立</span>
+    <span class="tier">Tier B · proxy</span>
+  </header>
+  <h3>EBBA 无需任务样本即可检测后门模型（Table 2）</h3>
+  <p class="ref">Table 2, p.8; Eq.8 · notebook: 04_detection</p>
+  <p class="notes">对每个模型，用任务无关图像按伪标签每类取 50 张，计算 Eq.6 的标签能量与 Eq.8 的 margin。判据：后门模型的 margin&gt;0 且目标标签为 0；干净模型的 margin&lt;0。缩比模型使用 λ=2.2：A20 已证明 K=10 时 z≤3，论文的 λ=3 在此不可达；λ_proxy 由本缩比模型实测的 clean z≈1.77 与 backdoored z≈2.66 之间选定，属于代理标定。这检验的是检测机制在缩比模型上是否成立，不能替代论文的 ResNet18 全量结果。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;models&quot;: {
+    &quot;clean&quot;: {
+      &quot;target&quot;: 3,
+      &quot;margin&quot;: -8.322005907187425,
+      &quot;zscore&quot;: 1.7727143544497206,
+      &quot;is_backdoored&quot;: false,
+      &quot;mean&quot;: 81.84719154785587,
+      &quot;std&quot;: 19.47644624585957,
+      &quot;energy&quot;: [
+        87.83909811041882,
+        69.98000913344461,
+        109.81744812438033,
+        116.3733673815595,
+        58.12544287625229,
+        69.25378127394258,
+        87.74976416852324,
+        70.268626305607,
+        56.57450061089302,
+        92.48987749353729
+      ]
+    },
+    &quot;badnets&quot;: {
+      &quot;target&quot;: 0,
+      &quot;margin&quot;: 25.249821762335216,
+      &quot;zscore&quot;: 2.734545830697119,
+      &quot;is_backdoored&quot;: true,
+      &quot;mean&quot;: 75.88996971813249,
+      &quot;std&quot;: 47.236027880726546,
+      &quot;energy&quot;: [
+        205.0590528180661,
+        54.45877449932073,
+        83.61799590357344,
+        99.41638660129256,
+        49.088306552280514,
+        44.33885297312128,
+        75.19438891689461,
+        53.40986243620655,
+        28.657071822909057,
+        65.65900465765999
+      ]
+    },
+    &quot;blend&quot;: {
+      &quot;target&quot;: 3,
+      &quot;margin&quot;: -4.9278481737126825,
+      &quot;zscore&quot;: 2.007373295849286,
+      &quot;is_backdoored&quot;: false,
+      &quot;mean&quot;: 82.89137073333436,
+      &quot;std&quot;: 25.582372887702252,
+      &quot;energy&quot;: [
+        79.62375474546202,
+        75.85130416306176,
+        122.6372349332249,
+        134.24474291256664,
+        70.26016832157485,
+        65.28546975546881,
+        65.78041818403489,
+        67.78334298393723,
+        50.17805579308373,
+        97.26921554092888
+      ]
+    }
+  },
+  &quot;detected_correct_target&quot;: {
+    &quot;badnets&quot;: true,
+    &quot;blend&quot;: false
+  },
+  &quot;lambda&quot;: 2.2,
+  &quot;paper_lambda&quot;: 3.0,
+  &quot;temperature&quot;: 2.0
+}</pre>
+    <pre>{&quot;margin_sign&quot;: &quot;backdoored&gt;0, clean&lt;0&quot;}</pre>
+  </details>
+</article>
+<article class="claim v-PARTIAL">
+  <header>
+    <span class="cid">B03</span>
+    <span class="badge" style="background:#9a6700">PARTIAL · 部分成立</span>
+    <span class="tier">Tier B · proxy</span>
+  </header>
+  <h3>λ 的可用区间形状与 Fig.80 一致</h3>
+  <p class="ref">Fig.80, p.24 · notebook: 04_detection</p>
+  <p class="notes">复算 Fig.80 的形状：固定后门模型的目标标签，改变 λ，找使“后门 margin&gt;0 且干净 margin&lt;0”的区间。论文报告可用区间约 [1.8, 5.7]；这里检查该区间是否与实测区间有重叠。由于 K=10 时 z≤3（A20），`λ=3 可用`这一项改用代理阈值 λ_proxy。区间端点由缩比模型决定，不能直接与论文数值对齐。Fig.80 是单模型图，故任一攻击复现出与论文区间重叠的可用区间即记通过；Blend 完全检不出是 B02 的结论，不在 B03 重复计为形状失败。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;attacks&quot;: {
+    &quot;badnets&quot;: {
+      &quot;valid_interval&quot;: [
+        1.8,
+        2.7
+      ],
+      &quot;chosen_lambda&quot;: 2.2,
+      &quot;chosen_valid&quot;: true,
+      &quot;overlap_with_paper_interval&quot;: 0.9000000000000001,
+      &quot;backdoored_target&quot;: 0
+    },
+    &quot;blend&quot;: {
+      &quot;valid_interval&quot;: [
+        1.8,
+        2.0
+      ],
+      &quot;chosen_lambda&quot;: 2.2,
+      &quot;chosen_valid&quot;: false,
+      &quot;overlap_with_paper_interval&quot;: 0.19999999999999996,
+      &quot;backdoored_target&quot;: 3
+    }
+  },
+  &quot;per_attack_passed&quot;: {
+    &quot;badnets&quot;: true,
+    &quot;blend&quot;: false
+  },
+  &quot;paper_interval&quot;: [
+    1.8,
+    5.7
+  ],
+  &quot;chosen_lambda&quot;: 2.2,
+  &quot;paper_lambda&quot;: 3.0
+}</pre>
+    <pre>{&quot;interval_overlap&quot;: true}</pre>
+  </details>
+</article>
+<article class="claim v-PARTIAL">
+  <header>
+    <span class="cid">B04</span>
+    <span class="badge" style="background:#9a6700">PARTIAL · 部分成立</span>
+    <span class="tier">Tier B · proxy</span>
+  </header>
+  <h3>图像损坏使真值标签前移、目标标签后移（Fig.2）</h3>
+  <p class="ref">Fig.2, p.2; Lemma 2 · notebook: 05_removal</p>
+  <p class="notes">对 80 种损坏取平均：目标标签概率下降、真值标签概率上升的比例是否占优；同时统计真值标签排名前移的比例。论文 Fig.2 与 Lemma 2 的总体方向由此检验。判定分两层：方向层要求两类概率变化各自过半数（&gt;0.60）；论文层的 0.90/0.80 另记。排名前移比例在本缩比模型上是退化的：中毒图本来就把真值类排在目标类之后（平均排名 1.4），可前移的空间很小，因此排名统计只作诊断，不参与方向判定。注意 A08 已显示逐图逐损坏的普遍形式并不成立，这里只检验聚合趋势。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;n_images&quot;: 99,
+  &quot;n_corruptions&quot;: 80,
+  &quot;probability_shift&quot;: {
+    &quot;target_decrease_fraction&quot;: 0.8284090909090909,
+    &quot;gt_increase_fraction&quot;: 0.767550505050505,
+    &quot;both_fraction&quot;: 0.76010101010101,
+    &quot;mean_target_drop&quot;: 0.24941751937017095,
+    &quot;mean_gt_gain&quot;: 0.07560077808053599
+  },
+  &quot;rank_shift&quot;: {
+    &quot;gt_forward_fraction&quot;: 0.14507575757575758,
+    &quot;target_backward_fraction&quot;: 0.24861111111111112,
+    &quot;gt_mean_rank_before&quot;: 1.3535353535353536,
+    &quot;gt_mean_rank_after&quot;: 2.396969696969697,
+    &quot;target_mean_rank_before&quot;: 0.08080808080808081,
+    &quot;target_mean_rank_after&quot;: 0.5290404040404041,
+    &quot;gt_top3_after&quot;: 0.6619949494949495,
+    &quot;per_image_forward_fraction&quot;: [
+      0.075,
+      0.0375,
+      0.05,
+      0.1125,
+      0.0375,
+      0.1375,
+      0.0625,
+      0.075,
+      0.0375,
+      0.025,
+      0.025,
+      0.2125,
+      0.125,
+      0.325,
+      0.1125,
+      0.5125,
+      0.1375,
+      0.325,
+      0.15,
+      0.1375,
+      0.275,
+      0.15,
+      0.45,
+      0.1875,
+      0.1625,
+      0.325,
+      0.025,
+      0.3375,
+      0.2125,
+      0.35,
+      0.1875,
+      0.0375,
+      0.1625,
+      0.3125,
+      0.325,
+      0.375,
+      0.3625,
+      0.0,
+      0.0375,
+      0.1125,
+      0.075,
+      0.175,
+      0.0,
+      0.1125,
+      0.0,
+      0.15,
+      0.4,
+      0.0,
+      0.15,
+      0.0,
+      0.1375,
+      0.325,
+      0.2375,
+      0.05,
+      0.1125,
+      0.0625,
+      0.2125,
+      0.0125,
+      0.3125,
+      0.2125,
+      0.0,
+      0.45,
+      0.0625,
+      0.45,
+      0.2,
+      0.225,
+      0.15,
+      0.1625,
+      0.0125,
+      0.1375,
+      0.025,
+      0.0375,
+      0.025,
+      0.05,
+      0.0,
+      0.05,
+      0.1875,
+      0.2625,
+      0.1375,
+      0.05,
+      0.15,
+      0.0875,
+      0.0625,
+      0.0375,
+      0.1,
+      0.25,
+      0.1,
+      0.1625,
+      0.0,
+      0.0,
+      0.0125,
+      0.1125,
+      0.0875,
+      0.0875,
+      0.1625,
+      0.075,
+      0.1125,
+      0.1875,
+      0.0625
+    ]
+  },
+  &quot;paper_level_reached&quot;: false
+}</pre>
+    <pre>{&quot;direction_fraction&quot;: 0.6, &quot;gt_forward_fraction&quot;: 0.9}</pre>
+  </details>
+</article>
+<article class="claim v-PARTIAL">
+  <header>
+    <span class="cid">B05</span>
+    <span class="badge" style="background:#9a6700">PARTIAL · 部分成立</span>
+    <span class="tier">Tier B · proxy</span>
+  </header>
+  <h3>NTE 的 argmax 能恢复中毒图像的原始标签（Eq.12）</h3>
+  <p class="ref">Eq.12, p.6 · notebook: 05_removal</p>
+  <p class="notes">在候选池（模型判为目标类的图）上，用 80 种损坏的 NTE 之和做 argmax 恢复原始标签。论文 Eq.12 的作用是让中毒图被重新标回原类。对于源预测就是目标类的干净图，第 0 个分量在损坏后通常下降，NTE_0 为负，argmax 不会回到 0，因此其恢复率接近 0；这正是论文需要聚类、而不能只靠 argmax 区分两类图的原因。判定分两层：≥0.30（远离随机，机制方向成立）记 PARTIAL；≥0.85（论文级幅度）另记 paper_level_reached。缩比模型的损坏鲁棒性远低于论文的 ResNet18，两层结果都如实报告。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;attacks&quot;: {
+    &quot;badnets&quot;: {
+      &quot;n_poisoned&quot;: 190,
+      &quot;n_clean_target&quot;: 91,
+      &quot;recovery_accuracy_poisoned&quot;: 0.4789473684210526,
+      &quot;accuracy_clean_target&quot;: 0.01098901098901099,
+      &quot;coverage&quot;: 0.9366666666666666
+    },
+    &quot;blend&quot;: {
+      &quot;n_poisoned&quot;: 199,
+      &quot;n_clean_target&quot;: 90,
+      &quot;recovery_accuracy_poisoned&quot;: 0.3969849246231156,
+      &quot;accuracy_clean_target&quot;: 0.0,
+      &quot;coverage&quot;: 0.9633333333333334
+    }
+  },
+  &quot;paper_level_reached&quot;: false,
+  &quot;chance_level&quot;: 0.1
+}</pre>
+    <pre>{&quot;recovery_accuracy&quot;: 0.85, &quot;direction_threshold&quot;: 0.3}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">B06</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier B · proxy</span>
+  </header>
+  <h3>干净目标类图像的 NTE 转移接近随机，故需聚类区分</h3>
+  <p class="ref">Sec. 4.2, p.6-7 · notebook: 05_removal</p>
+  <p class="notes">论文 Sec.4.2 的关键论点是：干净图（包括被判为目标类的干净图）的能量转移是随机的，因此 NTE 本身无法区分干净图与中毒图，必须依赖 t-SNE + 聚类。这里检验干净目标类图的 NTE argmax 分布是否接近均匀（卡方检验，p&gt;0.01）并报告归一化熵、最大类占比；峰值 NTE 的均值比与 AUC 仅作辅助诊断。若分布显著集中，说明缩比模型的能量转移存在系统性偏差，论文的“随机”描述在该设定下不成立。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;attacks&quot;: {
+    &quot;badnets&quot;: {
+      &quot;n_clean_target&quot;: 91,
+      &quot;predicted_label_counts&quot;: [
+        1,
+        0,
+        41,
+        0,
+        0,
+        0,
+        2,
+        0,
+        41,
+        6
+      ],
+      &quot;normalized_entropy&quot;: 0.44784091161067446,
+      &quot;max_class_share&quot;: 0.45054945054945056,
+      &quot;chi2_p_value_vs_uniform&quot;: 1.0701466814127208e-55,
+      &quot;random_like&quot;: false,
+      &quot;mean_peak_poisoned&quot;: 11.408181304055775,
+      &quot;mean_peak_clean_target&quot;: 10.966728573126552,
+      &quot;peak_ratio&quot;: 1.0402538211815493,
+      &quot;auc_peak_vs_label&quot;: 0.48438403701561594
+    },
+    &quot;blend&quot;: {
+      &quot;n_clean_target&quot;: 90,
+      &quot;predicted_label_counts&quot;: [
+        0,
+        0,
+        37,
+        4,
+        1,
+        0,
+        5,
+        0,
+        40,
+        3
+      ],
+      &quot;normalized_entropy&quot;: 0.516016762831011,
+      &quot;max_class_share&quot;: 0.4444444444444444,
+      &quot;chi2_p_value_vs_uniform&quot;: 8.650052575988526e-48,
+      &quot;random_like&quot;: false,
+      &quot;mean_peak_poisoned&quot;: 10.292971976098807,
+      &quot;mean_peak_clean_target&quot;: 11.962214273540097,
+      &quot;peak_ratio&quot;: 0.8604570809993278,
+      &quot;auc_peak_vs_label&quot;: 0.36527079843662746
+    }
+  }
+}</pre>
+    <pre>{&quot;uniformity_p_value&quot;: 0.01}</pre>
+  </details>
+</article>
+<article class="claim v-PARTIAL">
+  <header>
+    <span class="cid">B07</span>
+    <span class="badge" style="background:#9a6700">PARTIAL · 部分成立</span>
+    <span class="tier">Tier B · proxy</span>
+  </header>
+  <h3>EBBA+ 的 PDR/F1 达到论文报告的量级（Table 3）</h3>
+  <p class="ref">Table 3, p.8 · notebook: 05_removal</p>
+  <p class="notes">完整 EBBA+ 流程：EBBA 找目标标签 → 取被判为目标类的图 → NTE → t-SNE → Birch 二聚类。论文未说明无标签时如何认定哪个簇是中毒簇，本套件用簇内平均“目标 logit 领先最强非目标 logit 的幅度”来定向（backdoor 会把该幅度拉大）；同时报告两种敏感性：沿用峰值 NTE 定向的结果，以及用真实标签选最佳簇的上界。PDR/F1 用真实标签评估。论文报告 PDR/F1 约 0.95；缩比模型只要求达到可用量级（≥0.70）。只要有一种攻击达到可用量级即记 PARTIAL（机制成立），全部不达标才记 CONTRADICTED；论文级幅度（≥0.90）单独记录。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;attacks&quot;: {
+    &quot;badnets&quot;: {
+      &quot;pdr&quot;: 0.3736842105263158,
+      &quot;precision&quot;: 0.9102564102564102,
+      &quot;f1&quot;: 0.5298507462686568,
+      &quot;tp&quot;: 71,
+      &quot;fp&quot;: 7,
+      &quot;fn&quot;: 119,
+      &quot;tn&quot;: 84,
+      &quot;method_used&quot;: &quot;birch&quot;,
+      &quot;identification_rule&quot;: &quot;target_margin&quot;,
+      &quot;pdr_peak_rule&quot;: 0.6263157894736842,
+      &quot;f1_peak_rule&quot;: 0.6055979643765902,
+      &quot;pdr_best_cluster_oracle&quot;: 0.6263157894736842,
+      &quot;f1_best_cluster_oracle&quot;: 0.6055979643765902
+    },
+    &quot;blend&quot;: {
+      &quot;pdr&quot;: 0.7386934673366834,
+      &quot;precision&quot;: 0.8698224852071006,
+      &quot;f1&quot;: 0.7989130434782609,
+      &quot;tp&quot;: 147,
+      &quot;fp&quot;: 22,
+      &quot;fn&quot;: 52,
+      &quot;tn&quot;: 68,
+      &quot;method_used&quot;: &quot;birch&quot;,
+      &quot;identification_rule&quot;: &quot;target_margin&quot;,
+      &quot;pdr_peak_rule&quot;: 0.2613065326633166,
+      &quot;f1_peak_rule&quot;: 0.32601880877742945,
+      &quot;pdr_best_cluster_oracle&quot;: 0.7386934673366834,
+      &quot;f1_best_cluster_oracle&quot;: 0.7989130434782609
+    }
+  },
+  &quot;per_attack_passed&quot;: {
+    &quot;badnets&quot;: false,
+    &quot;blend&quot;: true
+  },
+  &quot;paper_level_reached&quot;: false
+}</pre>
+    <pre>{&quot;min_pdr&quot;: 0.7, &quot;min_f1&quot;: 0.7, &quot;paper_level&quot;: 0.9}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">B08</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier B · proxy</span>
+  </header>
+  <h3>四种聚类方法的 PDR 差异很小（Table 5/7）</h3>
+  <p class="ref">Table 5, p.9; Table 7, p.24 · notebook: 05_removal</p>
+  <p class="notes">对 HC、Birch、Mean Shift、DBSCAN 四种聚类重复同一流程。论文称方法选择影响很小（Table 5/7 极差 0.010）；缩比实验用 0.10 的极差上限。若某方法退化，代码会回退到 KMeans 并记录 method_used=&#x27;fallback_kmeans&#x27;。缩比模型的簇本身不纯（PDR≈0.7–0.85），此时换聚类方法会实际改变判为中毒的图；极差超限更多反映代理设定的可分性，而不是论文四种方法在干净簇（PDR≈0.95）上的差异。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;attacks&quot;: {
+    &quot;badnets&quot;: {
+      &quot;methods&quot;: {
+        &quot;hc&quot;: {
+          &quot;pdr&quot;: 0.3894736842105263,
+          &quot;f1&quot;: 0.548148148148148,
+          &quot;method_used&quot;: &quot;hc&quot;
+        },
+        &quot;birch&quot;: {
+          &quot;pdr&quot;: 0.3736842105263158,
+          &quot;f1&quot;: 0.5298507462686568,
+          &quot;method_used&quot;: &quot;birch&quot;
+        },
+        &quot;meanshift&quot;: {
+          &quot;pdr&quot;: 0.5105263157894737,
+          &quot;f1&quot;: 0.6466666666666667,
+          &quot;method_used&quot;: &quot;meanshift&quot;
+        },
+        &quot;dbscan&quot;: {
+          &quot;pdr&quot;: 0.5052631578947369,
+          &quot;f1&quot;: 0.6421404682274248,
+          &quot;method_used&quot;: &quot;fallback_kmeans&quot;
+        }
+      },
+      &quot;pdr_spread&quot;: 0.13684210526315793
+    },
+    &quot;blend&quot;: {
+      &quot;methods&quot;: {
+        &quot;hc&quot;: {
+          &quot;pdr&quot;: 0.8241206030150754,
+          &quot;f1&quot;: 0.8431876606683806,
+          &quot;method_used&quot;: &quot;hc&quot;
+        },
+        &quot;birch&quot;: {
+          &quot;pdr&quot;: 0.7386934673366834,
+          &quot;f1&quot;: 0.7989130434782609,
+          &quot;method_used&quot;: &quot;birch&quot;
+        },
+        &quot;meanshift&quot;: {
+          &quot;pdr&quot;: 0.7185929648241206,
+          &quot;f1&quot;: 0.7835616438356163,
+          &quot;method_used&quot;: &quot;meanshift&quot;
+        },
+        &quot;dbscan&quot;: {
+          &quot;pdr&quot;: 0.6733668341708543,
+          &quot;f1&quot;: 0.7613636363636364,
+          &quot;method_used&quot;: &quot;fallback_kmeans&quot;
+        }
+      },
+      &quot;pdr_spread&quot;: 0.1507537688442211
+    }
+  }
+}</pre>
+    <pre>{&quot;max_pdr_spread&quot;: 0.1}</pre>
+  </details>
+</article>
+<article class="claim v-PARTIAL">
+  <header>
+    <span class="cid">B09</span>
+    <span class="badge" style="background:#9a6700">PARTIAL · 部分成立</span>
+    <span class="tier">Tier B · proxy</span>
+  </header>
+  <h3>EBBA+ 去除后门且保持良性精度（Table 4）</h3>
+  <p class="ref">Table 4, p.9; Eq.12 · notebook: 05_removal</p>
+  <p class="notes">按论文做法，只改判“被判为目标类”的图：聚类判为中毒的图用 NTE argmax 重标，其余不动。池内 ASR 是条件指标（被 EBBA+ 检查的中毒图还有多少仍成功）；Table 4 的 BA/ASR 是全测试集指标，因此另算全局估计：BA 降幅 = 池内误报数 / 全测试集大小（只有目标类干净图会受影响），ASR_after ≈ 全局 ASR_before × 池内 ASR_after。判定看方向（ASR 至少降一半）与全局 BA（降幅 ≤0.05）；论文级幅度（降幅 ≥0.80、BA 降 ≤0.01）单独记录。池内 BA 降幅很大是误报集中在 200 张目标类图上的结果，二者都如实展示。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;attacks&quot;: {
+    &quot;badnets&quot;: {
+      &quot;asr_before_pool&quot;: 1.0,
+      &quot;asr_after_pool&quot;: 0.6263157894736842,
+      &quot;asr_reduction_pool&quot;: 0.37368421052631584,
+      &quot;asr_before_test&quot;: 0.937,
+      &quot;asr_after_test_estimate&quot;: 0.5868578947368421,
+      &quot;ba_before_pool&quot;: 1.0,
+      &quot;ba_after_pool&quot;: 0.9230769230769231,
+      &quot;ba_drop_pool&quot;: 0.07692307692307687,
+      &quot;ba_before_test&quot;: 0.7905,
+      &quot;ba_drop_test_estimate&quot;: 0.002491103202846975,
+      &quot;n_poisoned&quot;: 190,
+      &quot;n_clean&quot;: 91,
+      &quot;fp&quot;: 7
+    },
+    &quot;blend&quot;: {
+      &quot;asr_before_pool&quot;: 1.0,
+      &quot;asr_after_pool&quot;: 0.2663316582914573,
+      &quot;asr_reduction_pool&quot;: 0.7336683417085428,
+      &quot;asr_before_test&quot;: 0.984,
+      &quot;asr_after_test_estimate&quot;: 0.26207035175879395,
+      &quot;ba_before_pool&quot;: 1.0,
+      &quot;ba_after_pool&quot;: 0.7555555555555555,
+      &quot;ba_drop_pool&quot;: 0.24444444444444446,
+      &quot;ba_before_test&quot;: 0.804,
+      &quot;ba_drop_test_estimate&quot;: 0.007612456747404844,
+      &quot;n_poisoned&quot;: 199,
+      &quot;n_clean&quot;: 90,
+      &quot;fp&quot;: 22
+    }
+  },
+  &quot;per_attack_passed&quot;: {
+    &quot;badnets&quot;: false,
+    &quot;blend&quot;: true
+  },
+  &quot;paper_level_reached&quot;: false,
+  &quot;n_test&quot;: 2000,
+  &quot;n_target_class&quot;: 200
+}</pre>
+    <pre>{&quot;asr_reduction&quot;: 0.8, &quot;direction_reduction&quot;: 0.5, &quot;max_ba_drop&quot;: 0.05}</pre>
+  </details>
+</article>
+<article class="claim v-PARTIAL">
+  <header>
+    <span class="cid">B10</span>
+    <span class="badge" style="background:#9a6700">PARTIAL · 部分成立</span>
+    <span class="tier">Tier B · proxy</span>
+  </header>
+  <h3>缩比模型上 BA ≥ (K-1)/K × ba</h3>
+  <p class="ref">Sec. 5.2, p.8 · notebook: 05_removal</p>
+  <p class="notes">在缩比模型上检验 Sec.5.2 的经验下界 BA ≥ (K−1)/K×ba。按论文语境使用**全测试集** BA：防御只改动被判为目标类的图，因此全局 BA 降幅由池内误报数折算。该下界很松（K=10 时为 0.9×BA），通过它只能说明结果不与下界矛盾。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;attacks&quot;: {
+    &quot;badnets&quot;: {
+      &quot;ba_before_global&quot;: 0.7905,
+      &quot;ba_after_global_estimate&quot;: 0.788008896797153,
+      &quot;bound&quot;: 0.71145,
+      &quot;margin&quot;: 0.076558896797153,
+      &quot;fp&quot;: 7
+    },
+    &quot;blend&quot;: {
+      &quot;ba_before_global&quot;: 0.804,
+      &quot;ba_after_global_estimate&quot;: 0.7963875432525952,
+      &quot;bound&quot;: 0.7236,
+      &quot;margin&quot;: 0.07278754325259518,
+      &quot;fp&quot;: 22
+    }
+  },
+  &quot;K&quot;: 10
+}</pre>
+    <pre>{&quot;abs_margin&quot;: 0.005}</pre>
+  </details>
+</article>
+<article class="claim v-PARTIAL">
+  <header>
+    <span class="cid">B11</span>
+    <span class="badge" style="background:#9a6700">PARTIAL · 部分成立</span>
+    <span class="tier">Tier B · proxy</span>
+  </header>
+  <h3>均衡选择任务无关图像可减少误检（Fig.78/79）</h3>
+  <p class="ref">Appendix F, p.24 · notebook: 04_detection</p>
+  <p class="notes">消融“按伪标签均衡选图”：均衡选择每类 50 张；不均衡选择只保留伪标签最集中的 3 类共 500 张。核心统计量是目标标签相对最强非目标标签的领先量 z_t − max_{k≠t} z_k。论文 Fig.78/79 称不均衡选择会让其他标签的能量接近目标标签、造成误报；因此判据是领先量在均衡选择下更大且为正，同时报告两种选择下被 Eq.8 误标的标签数。干净模型作为对照，不参与判定。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;models&quot;: {
+    &quot;clean&quot;: {
+      &quot;balanced_target_z&quot;: 0.3076488640137183,
+      &quot;imbalanced_target_z&quot;: 0.03150344465747874,
+      &quot;balanced_max_other_z&quot;: 1.7727143544497206,
+      &quot;imbalanced_max_other_z&quot;: 1.7433219900863244,
+      &quot;balanced_lead&quot;: -1.4650654904360023,
+      &quot;imbalanced_lead&quot;: -1.7118185454288457,
+      &quot;lead_change&quot;: -0.2467530549928434,
+      &quot;balanced_false_flags&quot;: 0,
+      &quot;imbalanced_false_flags&quot;: 0,
+      &quot;balanced_std&quot;: 19.47644624585957,
+      &quot;imbalanced_std&quot;: 39.02041750027562
+    },
+    &quot;badnets&quot;: {
+      &quot;balanced_target_z&quot;: 2.734545830697119,
+      &quot;imbalanced_target_z&quot;: 0.5411978285434177,
+      &quot;balanced_max_other_z&quot;: 0.49806086452835335,
+      &quot;imbalanced_max_other_z&quot;: 2.6611312428837874,
+      &quot;balanced_lead&quot;: 2.2364849661687654,
+      &quot;imbalanced_lead&quot;: -2.1199334143403696,
+      &quot;lead_change&quot;: -4.356418380509135,
+      &quot;balanced_false_flags&quot;: 0,
+      &quot;imbalanced_false_flags&quot;: 1,
+      &quot;balanced_std&quot;: 47.236027880726546,
+      &quot;imbalanced_std&quot;: 29.551312095696392
+    },
+    &quot;blend&quot;: {
+      &quot;balanced_target_z&quot;: -0.1277291986250077,
+      &quot;imbalanced_target_z&quot;: -0.11803640541913424,
+      &quot;balanced_max_other_z&quot;: 2.007373295849286,
+      &quot;imbalanced_max_other_z&quot;: 1.7511046599920492,
+      &quot;balanced_lead&quot;: -2.1351024944742933,
+      &quot;imbalanced_lead&quot;: -1.8691410654111835,
+      &quot;lead_change&quot;: 0.2659614290631098,
+      &quot;balanced_false_flags&quot;: 0,
+      &quot;imbalanced_false_flags&quot;: 0,
+      &quot;balanced_std&quot;: 25.582372887702252,
+      &quot;imbalanced_std&quot;: 39.26428146926642
+    }
+  },
+  &quot;per_attack_passed&quot;: {
+    &quot;badnets&quot;: true,
+    &quot;blend&quot;: false
+  },
+  &quot;lambda&quot;: 2.2
+}</pre>
+    <pre>{&quot;lead_shrink&quot;: 0.0}</pre>
+  </details>
+</article>
+<article class="claim v-PARTIAL">
+  <header>
+    <span class="cid">B12</span>
+    <span class="badge" style="background:#9a6700">PARTIAL · 部分成立</span>
+    <span class="tier">Tier B · proxy</span>
+  </header>
+  <h3>自适应软标签攻击下，双边检验 |E-μ|&gt;λσ 仍可检测</h3>
+  <p class="ref">Appendix G.4, p.26 · notebook: 04_detection</p>
+  <p class="notes">论文只给出单边检验 Eq.8。这里检验一个机制性问题：若自适应攻击把目标能量压到均值以下（越界抑制），单边检验会漏检，而双边 |E−μ|&gt;λσ 可检出。注意：这不是对附录 G.4 的 13 组自适应攻击的复现（那属于 Tier C），只是在实测能量向量上注入 -4σ 的抑制，检验检验统计量本身。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;original_energy&quot;: [
+    205.0590528180661,
+    54.45877449932073,
+    83.61799590357344,
+    99.41638660129256,
+    49.088306552280514,
+    44.33885297312128,
+    75.19438891689461,
+    53.40986243620655,
+    28.657071822909057,
+    65.65900465765999
+  ],
+  &quot;suppressed_energy&quot;: [
+    -113.05414180477369,
+    54.45877449932073,
+    83.61799590357344,
+    99.41638660129256,
+    49.088306552280514,
+    44.33885297312128,
+    75.19438891689461,
+    53.40986243620655,
+    28.657071822909057,
+    65.65900465765999
+  ],
+  &quot;sigma&quot;: 47.236027880726546,
+  &quot;one_sided&quot;: {
+    &quot;is_backdoored&quot;: false,
+    &quot;target&quot;: 3,
+    &quot;margin&quot;: -67.56342425033816,
+    &quot;direction&quot;: &quot;high&quot;,
+    &quot;zscore&quot;: 0.9905766501293313,
+    &quot;mean&quot;: 44.07865025584851,
+    &quot;std&quot;: 55.86416390717373,
+    &quot;lambda&quot;: 2.2,
+    &quot;two_sided&quot;: false
+  },
+  &quot;two_sided&quot;: {
+    &quot;is_backdoored&quot;: true,
+    &quot;target&quot;: 0,
+    &quot;margin&quot;: 34.23163146483998,
+    &quot;direction&quot;: &quot;low&quot;,
+    &quot;zscore&quot;: 2.8127654845371124,
+    &quot;mean&quot;: 44.07865025584851,
+    &quot;std&quot;: 55.86416390717373,
+    &quot;lambda&quot;: 2.2,
+    &quot;two_sided&quot;: true
+  },
+  &quot;scope&quot;: &quot;synthetic suppression of the measured energy vector; no adaptive training&quot;
+}</pre>
+    <pre>{&quot;two_sided_success&quot;: true}</pre>
+  </details>
+</article>
+<article class="claim v-PARTIAL">
+  <header>
+    <span class="cid">B13</span>
+    <span class="badge" style="background:#9a6700">PARTIAL · 部分成立</span>
+    <span class="tier">Tier B · proxy</span>
+  </header>
+  <h3>多目标攻击下能量统计可同时标出两个目标</h3>
+  <p class="ref">Appendix G.2, p.9/25 · notebook: 05_removal</p>
+  <p class="notes">论文 Appendix G.2 用双目标攻击展示两个目标标签的能量同时偏高。这里不训练双目标模型，而是在实测能量向量上注入与目标 0 等高的第二个异常，检查 Eq.6/8 的排序能否同时标出两者。它验证统计量的排序能力，不验证攻击训练。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;injected_energy&quot;: [
+    205.0590528180661,
+    205.0590528180661,
+    83.61799590357344,
+    99.41638660129256,
+    49.088306552280514,
+    44.33885297312128,
+    75.19438891689461,
+    53.40986243620655,
+    28.657071822909057,
+    65.65900465765999
+  ],
+  &quot;top2_labels&quot;: [
+    0,
+    1
+  ],
+  &quot;expected&quot;: [
+    0,
+    1
+  ],
+  &quot;scope&quot;: &quot;synthetic injection of a second target anomaly into the measured energy vector&quot;
+}</pre>
+    <pre>{&quot;top2_recall&quot;: 1.0}</pre>
+  </details>
+</article>
+<article class="claim v-CONTRADICTED">
+  <header>
+    <span class="cid">B14</span>
+    <span class="badge" style="background:#b42318">CONTRADICTED · 被否定</span>
+    <span class="tier">Tier B · proxy</span>
+  </header>
+  <h3>NTE 的标签恢复对温度/截断变体不敏感</h3>
+  <p class="ref">Eq.4 vs Eq.9-10 · notebook: 05_removal</p>
+  <p class="notes">Eq.9/10 未写温度，官方代码用 T=1 并对单项 NTE 截断（5 或 4）。这里扫描 T∈{0.5,1,2,3} 与 cap∈{无,4,5}，以 (T=1, cap=5) 为基准统计 argmax 一致率。若一致率很高，说明实现细节不影响标签恢复；否则论文的公式歧义有实际后果。两组灵敏度分开报告：只改 cap（T=1）与只改温度（cap=5），以便看出是哪一项在起作用。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;attacks&quot;: {
+    &quot;badnets&quot;: {
+      &quot;variants&quot;: {
+        &quot;T=0.5,cap=None&quot;: 0.9822064056939501,
+        &quot;T=0.5,cap=4.0&quot;: 0.9822064056939501,
+        &quot;T=0.5,cap=5.0&quot;: 0.9822064056939501,
+        &quot;T=1.0,cap=None&quot;: 1.0,
+        &quot;T=1.0,cap=4.0&quot;: 1.0,
+        &quot;T=1.0,cap=5.0&quot;: 1.0,
+        &quot;T=2.0,cap=None&quot;: 0.9501779359430605,
+        &quot;T=2.0,cap=4.0&quot;: 0.9608540925266904,
+        &quot;T=2.0,cap=5.0&quot;: 0.9537366548042705,
+        &quot;T=3.0,cap=None&quot;: 0.9181494661921709,
+        &quot;T=3.0,cap=4.0&quot;: 0.9252669039145908,
+        &quot;T=3.0,cap=5.0&quot;: 0.9217081850533808
+      },
+      &quot;min_agreement_cap_only&quot;: 1.0,
+      &quot;min_agreement_temperature&quot;: 0.9217081850533808
+    },
+    &quot;blend&quot;: {
+      &quot;variants&quot;: {
+        &quot;T=0.5,cap=None&quot;: 0.9792387543252595,
+        &quot;T=0.5,cap=4.0&quot;: 0.9792387543252595,
+        &quot;T=0.5,cap=5.0&quot;: 0.9792387543252595,
+        &quot;T=1.0,cap=None&quot;: 1.0,
+        &quot;T=1.0,cap=4.0&quot;: 1.0,
+        &quot;T=1.0,cap=5.0&quot;: 1.0,
+        &quot;T=2.0,cap=None&quot;: 0.9377162629757786,
+        &quot;T=2.0,cap=4.0&quot;: 0.9688581314878892,
+        &quot;T=2.0,cap=5.0&quot;: 0.9446366782006921,
+        &quot;T=3.0,cap=None&quot;: 0.8927335640138409,
+        &quot;T=3.0,cap=4.0&quot;: 0.9377162629757786,
+        &quot;T=3.0,cap=5.0&quot;: 0.9342560553633218
+      },
+      &quot;min_agreement_cap_only&quot;: 1.0,
+      &quot;min_agreement_temperature&quot;: 0.9342560553633218
+    }
+  }
+}</pre>
+    <pre>{&quot;argmax_agreement&quot;: 0.99}</pre>
+  </details>
+</article>
+<article class="claim v-NOT_REPRODUCIBLE">
+  <header>
+    <span class="cid">C01</span>
+    <span class="badge" style="background:#5f6b7a">NOT_REPRODUCIBLE · 不可复现</span>
+    <span class="tier">Tier C · exact</span>
+  </header>
+  <h3>Table 3/4 的全量数字（ResNet18、200 epochs、三数据集）</h3>
+  <p class="ref">Table 3-4, p.8-9 · notebook: 06_verdicts</p>
+  <p class="notes">Table 3/4 的全量数字需要 ResNet18、200 epochs、CIFAR-10/GTSRB/ImageNet 三个数据集与五种攻击（BadNets、Blend、WaNet、FIBA、DUBA）的完整训练，单次复现约需数十 GPU 小时；本容器只提供 20,000 张 CIFAR-10 子集、SmallCNN、30 epochs、两种攻击的缩比代理。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;reason_zh&quot;: &quot;Table 3/4 的全量数字需要 ResNet18、200 epochs、CIFAR-10/GTSRB/ImageNet 三个数据集与五种攻击（BadNets、Blend、WaNet、FIBA、DUBA）的完整训练，单次复现约需数十 GPU 小时；本容器只提供 20,000 张 CIFAR-10 子集、SmallCNN、30 epochs、两种攻击的缩比代理。&quot;,
+  &quot;needed&quot;: [
+    &quot;ResNet18/VGG 训练&quot;,
+    &quot;三个数据集的完整训练集&quot;,
+    &quot;WaNet/FIBA/DUBA 攻击实现&quot;,
+    &quot;GPU 集群&quot;
+  ],
+  &quot;proxy_note_zh&quot;: &quot;Tier B 的 PDR/F1、BA/ASR 只验证方法方向，不能与表中数字逐项比较。&quot;
+}</pre>
+    <pre>{}</pre>
+  </details>
+</article>
+<article class="claim v-NOT_REPRODUCIBLE">
+  <header>
+    <span class="cid">C02</span>
+    <span class="badge" style="background:#5f6b7a">NOT_REPRODUCIBLE · 不可复现</span>
+    <span class="tier">Tier C · exact</span>
+  </header>
+  <h3>语音 ESC-50 与文本 THUCNews 的后门检测结果</h3>
+  <p class="ref">Sec. 5.4, p.8; Appendix G.1 · notebook: 06_verdicts</p>
+  <p class="notes">ESC-50 语音与 THUCNews 文本实验需要对应数据集、语音/文本骨干网络与任务相关的预处理流程；这些资源不在容器内，且与图像管线的接口不同。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;reason_zh&quot;: &quot;ESC-50 语音与 THUCNews 文本实验需要对应数据集、语音/文本骨干网络与任务相关的预处理流程；这些资源不在容器内，且与图像管线的接口不同。&quot;,
+  &quot;needed&quot;: [
+    &quot;ESC-50 数据集&quot;,
+    &quot;THUCNews 数据集&quot;,
+    &quot;语音/文本骨干网络&quot;,
+    &quot;领域特定的损坏算子&quot;
+  ],
+  &quot;proxy_note_zh&quot;: &quot;本容器不提供该实验的代理。&quot;
+}</pre>
+    <pre>{}</pre>
+  </details>
+</article>
+<article class="claim v-NOT_REPRODUCIBLE">
+  <header>
+    <span class="cid">C03</span>
+    <span class="badge" style="background:#5f6b7a">NOT_REPRODUCIBLE · 不可复现</span>
+    <span class="tier">Tier C · exact</span>
+  </header>
+  <h3>13 组自适应攻击参数的完整训练复现</h3>
+  <p class="ref">Appendix G.4, p.26 · notebook: 06_verdicts</p>
+  <p class="notes">13 组自适应软标签攻击需要为每组参数重新训练被攻击模型，且攻击实现未公开；容器只能对论文已报告的 13 个数值做算术审计（A19）。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;reason_zh&quot;: &quot;13 组自适应软标签攻击需要为每组参数重新训练被攻击模型，且攻击实现未公开；容器只能对论文已报告的 13 个数值做算术审计（A19）。&quot;,
+  &quot;needed&quot;: [
+    &quot;自适应攻击训练代码&quot;,
+    &quot;13 组重训练&quot;,
+    &quot;与论文一致的攻击预算&quot;
+  ],
+  &quot;proxy_note_zh&quot;: &quot;B12 只在合成分数上演示双边检验机制，不构成对自适应攻击的复现。&quot;
+}</pre>
+    <pre>{}</pre>
+  </details>
+</article>
+<article class="claim v-NOT_REPRODUCIBLE">
+  <header>
+    <span class="cid">C04</span>
+    <span class="badge" style="background:#5f6b7a">NOT_REPRODUCIBLE · 不可复现</span>
+    <span class="tier">Tier C · exact</span>
+  </header>
+  <h3>all-to-all 与 full-target 攻击的完整评估</h3>
+  <p class="ref">Appendix G.5-G.6, p.27 · notebook: 06_verdicts</p>
+  <p class="notes">all-to-all 与 full-target 攻击需要修改投毒标签生成器并对每种攻击重新训练；论文只给出结论性描述，缺少足够细节逐项复算。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;reason_zh&quot;: &quot;all-to-all 与 full-target 攻击需要修改投毒标签生成器并对每种攻击重新训练；论文只给出结论性描述，缺少足够细节逐项复算。&quot;,
+  &quot;needed&quot;: [
+    &quot;all-to-all 投毒生成器&quot;,
+    &quot;full-target 训练&quot;,
+    &quot;论文级算力&quot;
+  ],
+  &quot;proxy_note_zh&quot;: &quot;本容器的多目标检查（B13）是合成机制演示，不是该实验的复现。&quot;
+}</pre>
+    <pre>{}</pre>
+  </details>
+</article>
+<article class="claim v-NOT_REPRODUCIBLE">
+  <header>
+    <span class="cid">C05</span>
+    <span class="badge" style="background:#5f6b7a">NOT_REPRODUCIBLE · 不可复现</span>
+    <span class="tier">Tier C · exact</span>
+  </header>
+  <h3>ImageNet 子集（100 类、224×224）规模的结果</h3>
+  <p class="ref">Table 6, p.18; Table 3-4 · notebook: 06_verdicts</p>
+  <p class="notes">ImageNet 子集（100 类、224×224）需要 ImageNet 训练数据与 ResNet 级模型，下载量与算力都超出轻量容器的设计目标。</p>
+  <details><summary>实测值与容差</summary>
+    <pre>{
+  &quot;reason_zh&quot;: &quot;ImageNet 子集（100 类、224×224）需要 ImageNet 训练数据与 ResNet 级模型，下载量与算力都超出轻量容器的设计目标。&quot;,
+  &quot;needed&quot;: [
+    &quot;ImageNet 子集&quot;,
+    &quot;ResNet18/VGG&quot;,
+    &quot;GPU 训练&quot;
+  ],
+  &quot;proxy_note_zh&quot;: &quot;Tier B 的 CIFAR-10 代理不覆盖高分辨率与 100 类设定。&quot;
+}</pre>
+    <pre>{}</pre>
+  </details>
+</article>
+
+  <h2>代理实验与产物</h2>
+  <p class="lim">
+    Tier B 使用 CIFAR-10 子集（20,000 训练 / 2,000 测试）、SmallCNN、BadNets 与 Blend，
+    任务无关图像用 CIFAR-100 测试集代理。它检验方法的机制方向，不复现论文的 ResNet18、
+    200 epochs、三个数据集与五种攻击。所有 proxy 结论不应被引用为论文的精确数值。
+  </p>
+  <details><summary>manifest.json</summary><pre>{
+  &quot;seed&quot;: 2024,
+  &quot;torch&quot;: &quot;2.7.1+cpu&quot;,
+  &quot;numpy&quot;: &quot;1.26.4&quot;,
+  &quot;protocol&quot;: {
+    &quot;train_per_class&quot;: 2000,
+    &quot;test_per_class&quot;: 200,
+    &quot;ood_per_class&quot;: 50,
+    &quot;epochs&quot;: 30,
+    &quot;poison_rate&quot;: 0.1,
+    &quot;target&quot;: 0,
+    &quot;temperature&quot;: 2.0,
+    &quot;lambda&quot;: 3.0,
+    &quot;proxy_lambda&quot;: 2.2,
+    &quot;robust_augment&quot;: true
+  },
+  &quot;metrics&quot;: {
+    &quot;clean&quot;: {
+      &quot;ba&quot;: 0.807,
+      &quot;asr&quot;: 0.115
+    },
+    &quot;badnets&quot;: {
+      &quot;ba&quot;: 0.7905,
+      &quot;asr&quot;: 0.937
+    },
+    &quot;blend&quot;: {
+      &quot;ba&quot;: 0.804,
+      &quot;asr&quot;: 0.984
+    }
+  },
+  &quot;sha256&quot;: {
+    &quot;data/cifar10_train.npz&quot;: &quot;da97c6177d490c60648bbbcaf0772f5f11d9e9df4234e5d928954225d46dad9b&quot;,
+    &quot;data/cifar10_test.npz&quot;: &quot;cffb4a2bbfe2b0a6fabaa7dfa169e38795b27c7e2cb4253730723d9fb556ca68&quot;,
+    &quot;data/cifar100_ood.npz&quot;: &quot;4cd895e03d8a1f413db579bc6b30064c35daccbfef82c2263d40e58f0d197156&quot;,
+    &quot;checkpoints/clean.pt&quot;: &quot;d4d6a1324d9f799bd517ef916aaa50932aaa4a8521261c8bf744ac47ee67c61a&quot;,
+    &quot;checkpoints/badnets.pt&quot;: &quot;1e44a4739c5553e2ab55ad4eddf3de706e8ca346bc4c1981f7aab0889a1021ff&quot;,
+    &quot;checkpoints/blend.pt&quot;: &quot;4044dd7bf5231a583a182a00e785572c1ac578b87ec86e6d4a0c4cb7d4256831&quot;
+  },
+  &quot;extra&quot;: {
+    &quot;detection&quot;: {
+      &quot;clean&quot;: {
+        &quot;target&quot;: 3,
+        &quot;margin&quot;: -8.32200601062462,
+        &quot;zscore&quot;: 1.7727143493215416,
+        &quot;is_backdoored&quot;: false,
+        &quot;counts&quot;: {
+          &quot;0&quot;: 50,
+          &quot;1&quot;: 50,
+          &quot;2&quot;: 50,
+          &quot;3&quot;: 50,
+          &quot;4&quot;: 50,
+          &quot;5&quot;: 50,
+          &quot;6&quot;: 50,
+          &quot;7&quot;: 50,
+          &quot;8&quot;: 50,
+          &quot;9&quot;: 50
+        }
+      },
+      &quot;badnets&quot;: {
+        &quot;target&quot;: 0,
+        &quot;margin&quot;: 25.249821610226874,
+        &quot;zscore&quot;: 2.7345458253069683,
+        &quot;is_backdoored&quot;: true,
+        &quot;counts&quot;: {
+          &quot;0&quot;: 50,
+          &quot;1&quot;: 50,
+          &quot;2&quot;: 50,
+          &quot;3&quot;: 50,
+          &quot;4&quot;: 50,
+          &quot;5&quot;: 50,
+          &quot;6&quot;: 50,
+          &quot;7&quot;: 50,
+          &quot;8&quot;: 50,
+          &quot;9&quot;: 50
+        }
+      },
+      &quot;blend&quot;: {
+        &quot;target&quot;: 3,
+        &quot;margin&quot;: -4.927846979298074,
+        &quot;zscore&quot;: 2.0073733450334057,
+        &quot;is_backdoored&quot;: false,
+        &quot;counts&quot;: {
+          &quot;0&quot;: 50,
+          &quot;1&quot;: 50,
+          &quot;2&quot;: 50,
+          &quot;3&quot;: 50,
+          &quot;4&quot;: 50,
+          &quot;5&quot;: 50,
+          &quot;6&quot;: 50,
+          &quot;7&quot;: 50,
+          &quot;8&quot;: 50,
+          &quot;9&quot;: 50
+        }
+      }
+    },
+    &quot;nte_recovery&quot;: {
+      &quot;badnets&quot;: 0.5425531914893617,
+      &quot;blend&quot;: 0.4742268041237113
+    },
+    &quot;gates&quot;: {
+      &quot;clean_ba_min&quot;: true,
+      &quot;badnets_ba_min&quot;: true,
+      &quot;blend_ba_min&quot;: true,
+      &quot;badnets_asr&quot;: true,
+      &quot;blend_asr&quot;: true,
+      &quot;clean_not_detected&quot;: true,
+      &quot;badnets_detected_target&quot;: true
+    },
+    &quot;epochs&quot;: 30,
+    &quot;device&quot;: &quot;cpu&quot;,
+    &quot;cifar_source&quot;: &quot;fastai&quot;
+  }
+}</pre></details>
+</main>
+</body>
+</html>

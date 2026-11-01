@@ -1,0 +1,74 @@
+{
+  "id": "A02",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "Eq.3 是“最大值置 0”，而非减去最大值",
+  "paper_ref": "Eq.3, p.5; Appendix B Eq.24",
+  "notebook": "01_formula_audit",
+  "verdict": "CONFIRMED",
+  "measured": {
+    "rows": [
+      {
+        "input": [
+          9.0,
+          1.0,
+          -1.0
+        ],
+        "clamp": [
+          0.0,
+          1.0,
+          -1.0
+        ],
+        "subtract_max": [
+          0.0,
+          -8.0,
+          -10.0
+        ],
+        "paper_example_matches_clamp": true,
+        "clamp_differs_from_subtract": true
+      },
+      {
+        "input": [
+          3.0,
+          8.0,
+          -2.0
+        ],
+        "clamp": [
+          3.0,
+          0.0,
+          -2.0
+        ],
+        "subtract_max": [
+          -5.0,
+          0.0,
+          -10.0
+        ],
+        "paper_example_matches_clamp": true,
+        "clamp_differs_from_subtract": true
+      },
+      {
+        "input": [
+          -1.0,
+          3.0,
+          7.0
+        ],
+        "clamp": [
+          -1.0,
+          3.0,
+          0.0
+        ],
+        "subtract_max": [
+          -8.0,
+          -4.0,
+          0.0
+        ],
+        "paper_example_matches_clamp": true,
+        "clamp_differs_from_subtract": true
+      }
+    ]
+  },
+  "notes_zh": "论文 Eq.24 的示例 [3,8,-2]→[3,0,-2] 只能由“把最大值置 0”得到；减最大值会得到 [0,-5,-10]。因此 Eq.3 是 clamp，不是平移，且不保持 softmax 不变性。",
+  "tolerance": {
+    "abs_exact": 1e-12
+  }
+}

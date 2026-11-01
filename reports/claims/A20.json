@@ -1,0 +1,23 @@
+{
+  "id": "A20",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "λ=3 在 CIFAR-10（K=10）上可满足 Eq.8 的严格不等式",
+  "paper_ref": "Eq.7-8, p.5; Appendix F p.24; Table 2, p.8",
+  "notebook": "01_formula_audit",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "K": 10,
+    "lambda": 3.0,
+    "supremum_z": 3.0,
+    "z_extremal_equal_others": 3.0,
+    "z_max_random_perturbations": 2.999999999999975,
+    "z_with_phantom_K_plus_1": 3.143542838133274,
+    "strict_margin_possible_K10": false
+  },
+  "notes_zh": "对任意 K 维能量向量，max_k (E_k−μ)/σ ≤ √(K−1)。K=10 时上界恰为 3：只有其余 9 个标签能量完全相等才能取到，而 Eq.8 要求严格大于 λσ。因此论文在 CIFAR-10 上取 λ=3 时，检测裕量在数学上几乎不可能为正；其 λ 的可用区间 [1.8, 5.7] 与 K=43 的 GTSRB（上界 6.48）一致，说明 λ=3 是在 GTSRB 上标定后直接用于 CIFAR-10 的。若按 Eq.7 字面把求和写成 K+1 项，上界升到 √10≈3.16，λ=3 才勉强可达。",
+  "tolerance": {
+    "lambda": 3.0,
+    "max_zscore": 3.0
+  }
+}

@@ -1,0 +1,26 @@
+# Full-only delivery stack: one image, no host artifact mounts.
+#
+#   docker compose -f docker/docker-compose.full.yml run --rm ebba-full-only
+#   docker compose -f docker/docker-compose.full.yml run --rm ebba-full-only verify-full --device cuda
+#
+# The image already contains the ResNet-18 checkpoints and the CIFAR-10/GTSRB
+# arrays; only the report directory is mounted so results survive --rm.
+services:
+  ebba-full-only:
+    image: ebba:full
+    working_dir: /app
+    environment:
+      EBBA_PROFILE: full
+      EBBA_ARTIFACTS: /app/artifacts-full
+      EBBA_REPORTS: /app/reports-full
+      EBBA_OOD_GTSRB: "1"
+      EBBA_BADNETS_VALUE: "0"
+      EBBA_THREADS: "8"
+      EBBA_DEVICE: cuda
+    volumes:
+      - ../reports-full:/app/reports-full
+    # Proves the run needs no network: everything is inside the image.
+    network_mode: none
+    gpus: all
+    shm_size: "2gb"
+    stop_grace_period: 2m

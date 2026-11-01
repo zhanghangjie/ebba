@@ -1,0 +1,17 @@
+{
+  "id": "A06",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "Eq.9-10 与 Eq.4 使用同一温度 T",
+  "paper_ref": "Eq.4, Eq.9-10, p.5-6",
+  "notebook": "01_formula_audit",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "argmax_agreement_t1_vs_t2": 0.953125,
+    "temperature_paper": 2.0
+  },
+  "notes_zh": "Eq.4 的能量是 exp(s·T)/T，而 Eq.9/10 的比值把 T 消掉了（等价于 T=1）。形式不一致；实际影响用 argmax 一致率衡量。",
+  "tolerance": {
+    "argmax_agreement": 0.99
+  }
+}

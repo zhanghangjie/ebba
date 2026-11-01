@@ -1,0 +1,39 @@
+{
+  "id": "A10",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "Lemma 1（干净标签）的 NTK 核和占优",
+  "paper_ref": "Appendix G.3, Eq.35-36, p.26",
+  "notebook": "02_theory",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "counterexample": {
+      "a": 0.0,
+      "t": 1.0,
+      "b": 1.5,
+      "n": 2,
+      "eq29_holds": true,
+      "eq30_holds": true,
+      "eq35_lhs": 0.011108996538242306,
+      "eq35_rhs": 0.0820849986238988,
+      "eq35_claimed_direction_holds": false
+    },
+    "ntk_clean_label": {
+      "clean_label": {
+        "gamma": 0.0048220255671247575,
+        "gamma_multipliers": {
+          "0.5": 0.18055555555555555,
+          "1.0": 0.20833333333333334,
+          "2.0": 0.2222222222222222
+        },
+        "n_target": 100,
+        "n_other_per_class": 100
+      }
+    },
+    "min_fraction_at_gamma_star": 0.20833333333333334
+  },
+  "notes_zh": "Eq.35 声称 e^{-2γ||v-T||²} ≥ e^{-2γ(||v||²+||T||²)}（v=x+T-x_t），该式仅在 ⟨v,T⟩≥0 时成立。反例 a=0,t=1,b=1.5,n=2：v=-0.5，左边 e^{-4.5} 小于右边 e^{-2.5}，方向相反，故干净标签分支的证明步骤无效。另外在干净标签协议下做核和模拟，目标类并不占优。",
+  "tolerance": {
+    "dominance_fraction": 0.9
+  }
+}

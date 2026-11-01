@@ -1,0 +1,168 @@
+{
+  "id": "A11",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "BA 下界 (K-1)/K × ba 对所有 Table 4 行成立",
+  "paper_ref": "Sec. 5.2, p.8; Table 4, p.9",
+  "notebook": "03_table_audit",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "rows": [
+      {
+        "dataset": "Cifar10",
+        "attack": "BadNets",
+        "K": 10,
+        "ba": 91.22,
+        "bound": 82.098,
+        "ebba_ba": 89.92,
+        "margin": 7.822000000000003,
+        "violates": false
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "Blend",
+        "K": 10,
+        "ba": 91.35,
+        "bound": 82.215,
+        "ebba_ba": 89.72,
+        "margin": 7.5049999999999955,
+        "violates": false
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "WaNet",
+        "K": 10,
+        "ba": 91.25,
+        "bound": 82.125,
+        "ebba_ba": 89.96,
+        "margin": 7.834999999999994,
+        "violates": false
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "FIBA",
+        "K": 10,
+        "ba": 91.08,
+        "bound": 81.972,
+        "ebba_ba": 90.02,
+        "margin": 8.048000000000002,
+        "violates": false
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "DUBA",
+        "K": 10,
+        "ba": 91.55,
+        "bound": 82.395,
+        "ebba_ba": 89.52,
+        "margin": 7.125,
+        "violates": false
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "BadNets",
+        "K": 43,
+        "ba": 99.14,
+        "bound": 96.83441860465116,
+        "ebba_ba": 99.06,
+        "margin": 2.22558139534884,
+        "violates": false
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "Blend",
+        "K": 43,
+        "ba": 99.15,
+        "bound": 96.84418604651162,
+        "ebba_ba": 98.92,
+        "margin": 2.075813953488378,
+        "violates": false
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "WaNet",
+        "K": 43,
+        "ba": 99.07,
+        "bound": 96.76604651162789,
+        "ebba_ba": 98.79,
+        "margin": 2.023953488372115,
+        "violates": false
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "FIBA",
+        "K": 43,
+        "ba": 99.22,
+        "bound": 96.91255813953488,
+        "ebba_ba": 98.36,
+        "margin": 1.4474418604651191,
+        "violates": false
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "DUBA",
+        "K": 43,
+        "ba": 99.21,
+        "bound": 96.9027906976744,
+        "ebba_ba": 98.94,
+        "margin": 2.037209302325593,
+        "violates": false
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "BadNets",
+        "K": 100,
+        "ba": 88.56,
+        "bound": 87.6744,
+        "ebba_ba": 88.19,
+        "margin": 0.5155999999999921,
+        "violates": false
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "Blend",
+        "K": 100,
+        "ba": 88.39,
+        "bound": 87.5061,
+        "ebba_ba": 88.36,
+        "margin": 0.8538999999999959,
+        "violates": false
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "WaNet",
+        "K": 100,
+        "ba": 88.62,
+        "bound": 87.7338,
+        "ebba_ba": 87.94,
+        "margin": 0.2061999999999955,
+        "violates": false
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "FIBA",
+        "K": 100,
+        "ba": 89.07,
+        "bound": 88.1793,
+        "ebba_ba": 88.09,
+        "margin": -0.08929999999999438,
+        "violates": true
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "DUBA",
+        "K": 100,
+        "ba": 88.92,
+        "bound": 88.0308,
+        "ebba_ba": 87.91,
+        "margin": -0.12080000000000268,
+        "violates": true
+      }
+    ],
+    "n_violations": 2
+  },
+  "notes_zh": "按 Sec. 5.2 的下界 (K−1)/K×ba 逐行核对 Table 4。15 行中 2 行低于下界（容差 0.005），说明该式是经验观察而非可证定理，或表中数字有舍入/实验偏差。",
+  "tolerance": {
+    "abs_margin": 0.005
+  }
+}

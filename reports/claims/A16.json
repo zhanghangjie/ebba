@@ -1,0 +1,220 @@
+{
+  "id": "A16",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "Table 3 声称 EBBA+ 在 PDR 和 F1 上全面最优",
+  "paper_ref": "Sec. 5.2, p.7; Table 3, p.8",
+  "notebook": "03_table_audit",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "rows": [
+      {
+        "dataset": "Cifar10",
+        "attack": "BadNets",
+        "ebba_pdr": 0.96,
+        "best_other_pdr": 0.97,
+        "ebba_f1": 0.96,
+        "best_other_f1": 0.94,
+        "pdr_worse": true,
+        "f1_worse": false
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "Blend",
+        "ebba_pdr": 0.95,
+        "best_other_pdr": 0.95,
+        "ebba_f1": 0.94,
+        "best_other_f1": 0.95,
+        "pdr_worse": false,
+        "f1_worse": true
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "WaNet",
+        "ebba_pdr": 0.95,
+        "best_other_pdr": 0.93,
+        "ebba_f1": 0.94,
+        "best_other_f1": 0.92,
+        "pdr_worse": false,
+        "f1_worse": false
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "FIBA",
+        "ebba_pdr": 0.95,
+        "best_other_pdr": 0.96,
+        "ebba_f1": 0.95,
+        "best_other_f1": 0.94,
+        "pdr_worse": true,
+        "f1_worse": false
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "DUBA",
+        "ebba_pdr": 0.96,
+        "best_other_pdr": 0.95,
+        "ebba_f1": 0.95,
+        "best_other_f1": 0.94,
+        "pdr_worse": false,
+        "f1_worse": false
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "BadNets",
+        "ebba_pdr": 0.98,
+        "best_other_pdr": 0.98,
+        "ebba_f1": 0.97,
+        "best_other_f1": 0.96,
+        "pdr_worse": false,
+        "f1_worse": false
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "Blend",
+        "ebba_pdr": 0.97,
+        "best_other_pdr": 0.95,
+        "ebba_f1": 0.96,
+        "best_other_f1": 0.96,
+        "pdr_worse": false,
+        "f1_worse": false
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "WaNet",
+        "ebba_pdr": 0.96,
+        "best_other_pdr": 0.97,
+        "ebba_f1": 0.95,
+        "best_other_f1": 0.95,
+        "pdr_worse": true,
+        "f1_worse": false
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "FIBA",
+        "ebba_pdr": 0.95,
+        "best_other_pdr": 0.93,
+        "ebba_f1": 0.95,
+        "best_other_f1": 0.91,
+        "pdr_worse": false,
+        "f1_worse": false
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "DUBA",
+        "ebba_pdr": 0.96,
+        "best_other_pdr": 0.9,
+        "ebba_f1": 0.95,
+        "best_other_f1": 0.93,
+        "pdr_worse": false,
+        "f1_worse": false
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "BadNets",
+        "ebba_pdr": 0.98,
+        "best_other_pdr": 0.98,
+        "ebba_f1": 0.95,
+        "best_other_f1": 0.96,
+        "pdr_worse": false,
+        "f1_worse": true
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "Blend",
+        "ebba_pdr": 0.98,
+        "best_other_pdr": 0.95,
+        "ebba_f1": 0.95,
+        "best_other_f1": 0.93,
+        "pdr_worse": false,
+        "f1_worse": false
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "WaNet",
+        "ebba_pdr": 0.96,
+        "best_other_pdr": 0.94,
+        "ebba_f1": 0.94,
+        "best_other_f1": 0.92,
+        "pdr_worse": false,
+        "f1_worse": false
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "FIBA",
+        "ebba_pdr": 0.96,
+        "best_other_pdr": 0.94,
+        "ebba_f1": 0.95,
+        "best_other_f1": 0.92,
+        "pdr_worse": false,
+        "f1_worse": false
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "DUBA",
+        "ebba_pdr": 0.96,
+        "best_other_pdr": 0.93,
+        "ebba_f1": 0.95,
+        "best_other_f1": 0.91,
+        "pdr_worse": false,
+        "f1_worse": false
+      }
+    ],
+    "n_violations": 5,
+    "violations": [
+      {
+        "dataset": "Cifar10",
+        "attack": "BadNets",
+        "ebba_pdr": 0.96,
+        "best_other_pdr": 0.97,
+        "ebba_f1": 0.96,
+        "best_other_f1": 0.94,
+        "pdr_worse": true,
+        "f1_worse": false
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "Blend",
+        "ebba_pdr": 0.95,
+        "best_other_pdr": 0.95,
+        "ebba_f1": 0.94,
+        "best_other_f1": 0.95,
+        "pdr_worse": false,
+        "f1_worse": true
+      },
+      {
+        "dataset": "Cifar10",
+        "attack": "FIBA",
+        "ebba_pdr": 0.95,
+        "best_other_pdr": 0.96,
+        "ebba_f1": 0.95,
+        "best_other_f1": 0.94,
+        "pdr_worse": true,
+        "f1_worse": false
+      },
+      {
+        "dataset": "GTSRB",
+        "attack": "WaNet",
+        "ebba_pdr": 0.96,
+        "best_other_pdr": 0.97,
+        "ebba_f1": 0.95,
+        "best_other_f1": 0.95,
+        "pdr_worse": true,
+        "f1_worse": false
+      },
+      {
+        "dataset": "ImageNet",
+        "attack": "BadNets",
+        "ebba_pdr": 0.98,
+        "best_other_pdr": 0.98,
+        "ebba_f1": 0.95,
+        "best_other_f1": 0.96,
+        "pdr_worse": false,
+        "f1_worse": true
+      }
+    ]
+  },
+  "notes_zh": "Table 3 标题称 EBBA+ 在 PDR 与 F1 上优于所有对比方法。15 行中有 5 行在至少一个指标上严格劣于最好的基线（Cifar10 BadNets 的 PDR、Cifar10 Blend 的 F1、Cifar10 FIBA 的 PDR、GTSRB WaNet 的 PDR、ImageNet BadNets 的 F1），故“全面最优”不成立。另有若干平局，未计入反例。",
+  "tolerance": {
+    "max_violations": 0
+  }
+}

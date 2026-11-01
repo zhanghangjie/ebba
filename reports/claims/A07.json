@@ -1,0 +1,27 @@
+{
+  "id": "A07",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "Lemma 2 证明中 Eq.30 的代数等价性",
+  "paper_ref": "Appendix C, Eq.30, p.16",
+  "notebook": "02_theory",
+  "verdict": "PARTIAL",
+  "measured": {
+    "samples_positive_u": 4000,
+    "mismatches_positive_u": 0,
+    "samples_negative_u": 4000,
+    "mismatches_negative_u": 3356,
+    "coefficient_2n_over_1_plus_n": [
+      1.3333333333333333,
+      1.5,
+      1.6,
+      1.8181818181818181,
+      1.9801980198019802
+    ],
+    "coefficient_range_ok": true
+  },
+  "notes_zh": "在 a+t>0、b≥0、n>1（像素空间的通常取值）时，Eq.29 与 Eq.30 逐元素等价。但推导中间除以了 a+t，论文未声明该符号条件；当 a+t<0 时等价关系翻转，实测出现大量反例。结论：代数正确但有未声明的前提，故记 PARTIAL。",
+  "tolerance": {
+    "abs_exact": 1e-09
+  }
+}

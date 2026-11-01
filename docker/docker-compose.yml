@@ -1,0 +1,116 @@
+# EBBA verification.
+#
+#   docker compose build ebba
+#   docker compose run --rm ebba verify
+#   docker compose run --rm ebba test
+#   docker compose run --rm ebba retrain --attack badnets
+#   docker compose --profile gpu run --rm ebba-gpu verify --device cuda
+#
+# No network is needed at run time; all checkpoints and data subsets are
+# baked into the image and checked against the manifest by SHA256.
+
+services:
+  ebba:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        GPU: "0"
+        BASE_IMAGE: ${EBBA_BASE_IMAGE:-python:3.11.10-slim-bookworm}
+        DATA_SOURCE: ${EBBA_CIFAR_SOURCE:-fastai}
+    image: ebba:cpu
+    working_dir: /app
+    environment:
+      EBBA_THREADS: "4"
+      EBBA_DEVICE: cpu
+    volumes:
+      - ../reports:/app/reports
+    # Deterministic CPU runs only need the container's own loopback.
+    network_mode: none
+    stdin_open: false
+    tty: false
+
+  ebba-gpu:
+    profiles: ["gpu"]
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        GPU: "1"
+        BASE_IMAGE: ${EBBA_BASE_IMAGE:-python:3.11.10-slim-bookworm}
+        DATA_SOURCE: ${EBBA_CIFAR_SOURCE:-fastai}
+    image: ebba:gpu
+    working_dir: /app
+    environment:
+      EBBA_THREADS: "4"
+      EBBA_DEVICE: cuda
+    volumes:
+      - ../reports:/app/reports
+    network_mode: none
+    gpus: all
+
+  # -------------------------------------------------------------------------
+  # Full profile (Plan A): ResNet-18, full CIFAR-10, 200 epochs.
+  #
+  # Network is enabled for this service because the first run downloads the
+  # full CIFAR-10/CIFAR-100 archives into the host-mounted artifacts directory.
+  # Checkpoints are written to the host-mounted work directory; stop the
+  # service with `docker compose stop ebba-train` (SIGTERM + 2 min grace) to
+  # save at the next batch boundary.
+  # -------------------------------------------------------------------------
+  ebba-train:
+    profiles: ["train"]
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        GPU: "1"
+        BASE_IMAGE: ${EBBA_BASE_IMAGE:-python:3.11.10-slim-bookworm}
+        DATA_SOURCE: ${EBBA_CIFAR_SOURCE:-fastai}
+    image: ebba:gpu
+    working_dir: /app
+    environment:
+      EBBA_PROFILE: full
+      EBBA_ARTIFACTS: /app/artifacts-full
+      EBBA_REPORTS: /app/reports-full
+      EBBA_WORK: /app/checkpoints-full
+      EBBA_THREADS: "8"
+      EBBA_DEVICE: cuda
+      # Paper-faithful triggers for the full profile: black BadNets block and
+      # the hello-kitty Blend pattern (alpha 0.2).  If
+      # artifacts-full/data/blend_hello_kitty.npy exists it is picked up
+      # automatically (see scripts/prepare_trigger.py); otherwise the code
+      # falls back to a documented surrogate and records that in the hash.
+      EBBA_OOD_GTSRB: ${EBBA_OOD_GTSRB:-1}
+      EBBA_BADNETS_VALUE: ${EBBA_BADNETS_VALUE:-0}
+    volumes:
+      - ../artifacts-full:/app/artifacts-full
+      - ../checkpoints-full:/app/checkpoints-full
+      - ../reports-full:/app/reports-full
+    gpus: all
+    shm_size: "2gb"
+    stop_grace_period: 2m
+    command: ["train-full", "--all", "--resume", "auto"]
+
+  # Offline evaluation of the trained full profile.  The artifact mount is
+  # read-only; only reports-full is writable.
+  ebba-full:
+    profiles: ["full"]
+    image: ebba:gpu
+    working_dir: /app
+    environment:
+      EBBA_PROFILE: full
+      EBBA_ARTIFACTS: /app/artifacts-full
+      EBBA_REPORTS: /app/reports-full
+      EBBA_THREADS: "8"
+      EBBA_DEVICE: cuda
+    volumes:
+      - ../artifacts-full:/app/artifacts-full:ro
+      # The proxy verdicts are optional but let notebook 07 show the
+      # paper / full / SmallCNN three-way comparison.
+      - ../reports:/app/reports:ro
+      - ../reports-full:/app/reports-full
+    network_mode: none
+    gpus: all
+    shm_size: "2gb"
+    command: ["verify-full"]

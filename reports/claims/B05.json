@@ -1,0 +1,34 @@
+{
+  "id": "B05",
+  "tier": "B",
+  "scope": "proxy",
+  "title_zh": "NTE 的 argmax 能恢复中毒图像的原始标签（Eq.12）",
+  "paper_ref": "Eq.12, p.6",
+  "notebook": "05_removal",
+  "verdict": "PARTIAL",
+  "measured": {
+    "attacks": {
+      "badnets": {
+        "n_poisoned": 190,
+        "n_clean_target": 91,
+        "recovery_accuracy_poisoned": 0.4789473684210526,
+        "accuracy_clean_target": 0.01098901098901099,
+        "coverage": 0.9366666666666666
+      },
+      "blend": {
+        "n_poisoned": 199,
+        "n_clean_target": 90,
+        "recovery_accuracy_poisoned": 0.3969849246231156,
+        "accuracy_clean_target": 0.0,
+        "coverage": 0.9633333333333334
+      }
+    },
+    "paper_level_reached": false,
+    "chance_level": 0.1
+  },
+  "notes_zh": "在候选池（模型判为目标类的图）上，用 80 种损坏的 NTE 之和做 argmax 恢复原始标签。论文 Eq.12 的作用是让中毒图被重新标回原类。对于源预测就是目标类的干净图，第 0 个分量在损坏后通常下降，NTE_0 为负，argmax 不会回到 0，因此其恢复率接近 0；这正是论文需要聚类、而不能只靠 argmax 区分两类图的原因。判定分两层：≥0.30（远离随机，机制方向成立）记 PARTIAL；≥0.85（论文级幅度）另记 paper_level_reached。缩比模型的损坏鲁棒性远低于论文的 ResNet18，两层结果都如实报告。",
+  "tolerance": {
+    "recovery_accuracy": 0.85,
+    "direction_threshold": 0.3
+  }
+}

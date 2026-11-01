@@ -1,0 +1,43 @@
+{
+  "fast": false,
+  "device": "cpu",
+  "notebooks": [
+    {
+      "name": "00_overview",
+      "status": "ok",
+      "seconds": 2.2
+    },
+    {
+      "name": "01_formula_audit",
+      "status": "ok",
+      "seconds": 1.3
+    },
+    {
+      "name": "02_theory",
+      "status": "ok",
+      "seconds": 8.9
+    },
+    {
+      "name": "03_table_audit",
+      "status": "ok",
+      "seconds": 1.1
+    },
+    {
+      "name": "04_detection",
+      "status": "ok",
+      "seconds": 7.6
+    },
+    {
+      "name": "05_removal",
+      "status": "ok",
+      "seconds": 41.3
+    },
+    {
+      "name": "06_verdicts",
+      "status": "ok",
+      "seconds": 1.4
+    }
+  ],
+  "started_at": 1792593223.0134406,
+  "total_seconds": 63.8
+}

@@ -1,0 +1,65 @@
+# Full-only verification image: ResNet-18 checkpoints and the CIFAR-10/GTSRB
+# artifacts are baked in, so `verify-full` runs with no host mounts and no
+# network.  The proxy (SmallCNN) tier is deliberately absent.
+#
+#   docker build -f docker/Dockerfile.full --build-arg GPU=1 -t ebba:full .
+#
+# The apt/pip/torch-check instructions below are byte-identical to
+# docker/Dockerfile so BuildKit reuses those layers instead of downloading
+# ~3 GB of CUDA wheels again.  Keep them in sync.
+ARG BASE_IMAGE=python:3.11.10-slim-bookworm
+FROM ${BASE_IMAGE}
+
+ARG GPU=1
+ARG DEBIAN_FRONTEND=noninteractive
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONHASHSEED=0 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    EBBA_THREADS=4 \
+    PYTHONPATH=/app/src \
+    MPLBACKEND=Agg
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends libgomp1 ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY docker/requirements-common.txt /tmp/requirements-common.txt
+RUN pip install -r /tmp/requirements-common.txt
+
+COPY docker/requirements-cpu.txt docker/requirements-gpu.txt /tmp/
+RUN if [ "$GPU" = "1" ]; then \
+        pip install -r /tmp/requirements-gpu.txt; \
+    else \
+        pip install -r /tmp/requirements-cpu.txt; \
+    fi
+
+# Same sm_120 guard as the proxy image: fail the build instead of the run.
+RUN if [ "$GPU" = "1" ]; then \
+        python -c "import torch; flags=torch._C._cuda_getArchFlags(); print('arch flags:', flags); \
+assert 'sm_120' in flags, 'torch build lacks sm_120 (need cu128)';"; \
+    fi
+
+WORKDIR /app
+COPY src ./src
+COPY scripts ./scripts
+# Only the full-profile notebook ships: the proxy notebooks need /app/artifacts.
+COPY notebooks/07_full_comparison.ipynb ./notebooks/07_full_comparison.ipynb
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+# 350 MB: three ResNet-18 checkpoints + CIFAR-10/GTSRB arrays + manifest.
+COPY release/full-bundle ./artifacts-full
+
+RUN chmod +x /usr/local/bin/entrypoint.sh \
+ && mkdir -p /app/reports-full/executed
+
+# The runtime environment is fixed here so `docker run` needs no -e flags.
+ENV EBBA_PROFILE=full \
+    EBBA_ARTIFACTS=/app/artifacts-full \
+    EBBA_REPORTS=/app/reports-full \
+    EBBA_OOD_GTSRB=1 \
+    EBBA_BADNETS_VALUE=0
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["verify-full", "--device", "cuda"]

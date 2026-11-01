@@ -1,0 +1,41 @@
+{
+  "id": "B01",
+  "tier": "B",
+  "scope": "proxy",
+  "title_zh": "目标标签在干净/OOD 样本的 top 输出中更常见（Fig.1）",
+  "paper_ref": "Fig.1, p.2; Lemma 1",
+  "notebook": "04_detection",
+  "verdict": "PARTIAL",
+  "measured": {
+    "models": {
+      "clean": {
+        "mean_rank": 4.4708,
+        "top1": 0.1074,
+        "top3": 0.312,
+        "uniform_mean_rank": 4.5
+      },
+      "badnets": {
+        "mean_rank": 1.695,
+        "top1": 0.2198,
+        "top3": 0.7326,
+        "uniform_mean_rank": 4.5
+      },
+      "blend": {
+        "mean_rank": 4.406,
+        "top1": 0.1222,
+        "top3": 0.327,
+        "uniform_mean_rank": 4.5
+      },
+      "clean_control_ok": true
+    },
+    "per_attack_passed": {
+      "badnets": true,
+      "blend": false
+    },
+    "n_ood": 5000
+  },
+  "notes_zh": "在 5,000 张 CIFAR-100（任务无关代理）上统计目标标签在输出中的排名。后门模型的目标标签 top-3 频率应显著高于均匀基线 0.30；干净模型作为对照不应出现该偏移。只要有一种攻击出现该偏移即记 PARTIAL，全部没有才记 CONTRADICTED。按项目规则，缩比实证支持只记 PARTIAL。",
+  "tolerance": {
+    "top3_fraction": 0.5
+  }
+}

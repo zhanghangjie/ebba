@@ -1,0 +1,31 @@
+{
+  "id": "A04",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "Eq.7 的求和下标与方差分母自洽",
+  "paper_ref": "Eq.2, Eq.6, Eq.7, p.5",
+  "notebook": "01_formula_audit",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "energy": [
+      10.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0,
+      5.0
+    ],
+    "K": 10,
+    "zscore_K_terms_divisor_K": 3.0,
+    "zscore_K_plus_1_terms_divisor_K_plus_1": 2.345207879911715,
+    "max_zscore_shift": 0.6547921200882851
+  },
+  "notes_zh": "Eq.2/6 写作 k∈[0,K]（K+1 项），Eq.7 却除以 K。K 个真实标签时应使用 K 项、除数 K；若按字面补一项，最大 z-score 会明显变化。实现采用 K 项。",
+  "tolerance": {
+    "max_zscore_shift": 0.05
+  }
+}

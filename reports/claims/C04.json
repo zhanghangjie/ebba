@@ -1,0 +1,20 @@
+{
+  "id": "C04",
+  "tier": "C",
+  "scope": "exact",
+  "title_zh": "all-to-all 与 full-target 攻击的完整评估",
+  "paper_ref": "Appendix G.5-G.6, p.27",
+  "notebook": "06_verdicts",
+  "verdict": "NOT_REPRODUCIBLE",
+  "measured": {
+    "reason_zh": "all-to-all 与 full-target 攻击需要修改投毒标签生成器并对每种攻击重新训练；论文只给出结论性描述，缺少足够细节逐项复算。",
+    "needed": [
+      "all-to-all 投毒生成器",
+      "full-target 训练",
+      "论文级算力"
+    ],
+    "proxy_note_zh": "本容器的多目标检查（B13）是合成机制演示，不是该实验的复现。"
+  },
+  "notes_zh": "all-to-all 与 full-target 攻击需要修改投毒标签生成器并对每种攻击重新训练；论文只给出结论性描述，缺少足够细节逐项复算。",
+  "tolerance": {}
+}

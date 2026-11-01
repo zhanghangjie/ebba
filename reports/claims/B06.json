@@ -1,0 +1,63 @@
+{
+  "id": "B06",
+  "tier": "B",
+  "scope": "proxy",
+  "title_zh": "干净目标类图像的 NTE 转移接近随机，故需聚类区分",
+  "paper_ref": "Sec. 4.2, p.6-7",
+  "notebook": "05_removal",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "attacks": {
+      "badnets": {
+        "n_clean_target": 91,
+        "predicted_label_counts": [
+          1,
+          0,
+          41,
+          0,
+          0,
+          0,
+          2,
+          0,
+          41,
+          6
+        ],
+        "normalized_entropy": 0.44784091161067446,
+        "max_class_share": 0.45054945054945056,
+        "chi2_p_value_vs_uniform": 1.0701466814127208e-55,
+        "random_like": false,
+        "mean_peak_poisoned": 11.408181304055775,
+        "mean_peak_clean_target": 10.966728573126552,
+        "peak_ratio": 1.0402538211815493,
+        "auc_peak_vs_label": 0.48438403701561594
+      },
+      "blend": {
+        "n_clean_target": 90,
+        "predicted_label_counts": [
+          0,
+          0,
+          37,
+          4,
+          1,
+          0,
+          5,
+          0,
+          40,
+          3
+        ],
+        "normalized_entropy": 0.516016762831011,
+        "max_class_share": 0.4444444444444444,
+        "chi2_p_value_vs_uniform": 8.650052575988526e-48,
+        "random_like": false,
+        "mean_peak_poisoned": 10.292971976098807,
+        "mean_peak_clean_target": 11.962214273540097,
+        "peak_ratio": 0.8604570809993278,
+        "auc_peak_vs_label": 0.36527079843662746
+      }
+    }
+  },
+  "notes_zh": "论文 Sec.4.2 的关键论点是：干净图（包括被判为目标类的干净图）的能量转移是随机的，因此 NTE 本身无法区分干净图与中毒图，必须依赖 t-SNE + 聚类。这里检验干净目标类图的 NTE argmax 分布是否接近均匀（卡方检验，p>0.01）并报告归一化熵、最大类占比；峰值 NTE 的均值比与 AUC 仅作辅助诊断。若分布显著集中，说明缩比模型的能量转移存在系统性偏差，论文的“随机”描述在该设定下不成立。",
+  "tolerance": {
+    "uniformity_p_value": 0.01
+  }
+}

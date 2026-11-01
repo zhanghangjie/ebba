@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+.venv-*/
+venv/
+env/
+
+# 大体积实验产物：数据子集、checkpoint、镜像 tar、构建与推送日志。
+# 代理档产物由 scripts/build_artifacts.py 重建；
+# 全量档产物由 scripts/train_full.py 训练，或直接从 Docker Hub 镜像获得。
+artifacts/
+artifacts-full/
+checkpoints-full/
+release/
+paper/
+*.tar
+.quarantine/
+
+# 编辑器 / 系统
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

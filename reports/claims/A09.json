@@ -1,0 +1,39 @@
+{
+  "id": "A09",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "Lemma 1（脏标签）的 NTK 核和占优",
+  "paper_ref": "Lemma 1, p.4; Appendix A Eq.15-20",
+  "notebook": "02_theory",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "cases": {
+      "case1_nt_gt_nk2": {
+        "gamma": 0.004766470856568327,
+        "gamma_multipliers": {
+          "0.5": 1.0,
+          "1.0": 1.0,
+          "2.0": 0.9444444444444444
+        },
+        "n_target": 190,
+        "n_other_per_class": 100
+      },
+      "case2_nt_eq_nk2": {
+        "gamma": 0.004754301367398475,
+        "gamma_multipliers": {
+          "0.5": 0.08333333333333333,
+          "1.0": 0.08333333333333333,
+          "2.0": 0.041666666666666664
+        },
+        "n_target": 100,
+        "n_other_per_class": 100
+      }
+    },
+    "min_fraction_at_gamma_star": 0.08333333333333333,
+    "min_fraction_across_gamma": 0.041666666666666664
+  },
+  "notes_zh": "按 Eq.13 的 NTK 核 K=e^{-2γ||x-x'||²}，在真实 CIFAR-10 像素上计算目标类与其他类的核和；γ 由查询-训练距离中位数标定，并报告 0.5×/1×/2× 的敏感性。两个情形分开看：目标类样本数多于其他类（190 vs 100）时目标核和几乎总是最大；两类样本数相等（100 vs 100）时只有 8% 的查询满足 Lemma 1。Lemma 1 的原文没有样本数条件，因此等量情形是合法反例，判 CONTRADICTED；更大的目标类会机械地带来更大的核和，这部分不能算作对引理的验证。这是对论文证明所用替代模型的复算，不是对训练网络的证明。",
+  "tolerance": {
+    "dominance_fraction": 0.9
+  }
+}

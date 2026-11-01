@@ -1,0 +1,30 @@
+{
+  "id": "A14",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "四种聚类方法的 PDR 差异很小（Table 5/7）",
+  "paper_ref": "Table 5, p.9; Table 7, p.24",
+  "notebook": "03_table_audit",
+  "verdict": "CONFIRMED",
+  "measured": {
+    "table5": {
+      "HC": 0.972,
+      "Birch": 0.968,
+      "Mean Shift": 0.965,
+      "DBSCAN": 0.975
+    },
+    "table7": {
+      "HC": 0.972,
+      "Birch": 0.968,
+      "Mean Shift": 0.965,
+      "DBSCAN": 0.975
+    },
+    "tables_identical": true,
+    "max_spread": 0.010000000000000009,
+    "best_method": "DBSCAN"
+  },
+  "notes_zh": "Table 5 与 Table 7（正文与附录）数值完全相同，均为 HC 0.972、Birch 0.968、Mean Shift 0.965、DBSCAN 0.975。极差 0.010，支持“聚类方法影响很小”的说法；但同一组数字在两处重复出现，不构成独立证据。",
+  "tolerance": {
+    "max_pdr_spread": 0.05
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "C01",
+  "tier": "C",
+  "scope": "exact",
+  "title_zh": "Table 3/4 的全量数字（ResNet18、200 epochs、三数据集）",
+  "paper_ref": "Table 3-4, p.8-9",
+  "notebook": "06_verdicts",
+  "verdict": "NOT_REPRODUCIBLE",
+  "measured": {
+    "reason_zh": "Table 3/4 的全量数字需要 ResNet18、200 epochs、CIFAR-10/GTSRB/ImageNet 三个数据集与五种攻击（BadNets、Blend、WaNet、FIBA、DUBA）的完整训练，单次复现约需数十 GPU 小时；本容器只提供 20,000 张 CIFAR-10 子集、SmallCNN、30 epochs、两种攻击的缩比代理。",
+    "needed": [
+      "ResNet18/VGG 训练",
+      "三个数据集的完整训练集",
+      "WaNet/FIBA/DUBA 攻击实现",
+      "GPU 集群"
+    ],
+    "proxy_note_zh": "Tier B 的 PDR/F1、BA/ASR 只验证方法方向，不能与表中数字逐项比较。"
+  },
+  "notes_zh": "Table 3/4 的全量数字需要 ResNet18、200 epochs、CIFAR-10/GTSRB/ImageNet 三个数据集与五种攻击（BadNets、Blend、WaNet、FIBA、DUBA）的完整训练，单次复现约需数十 GPU 小时；本容器只提供 20,000 张 CIFAR-10 子集、SmallCNN、30 epochs、两种攻击的缩比代理。",
+  "tolerance": {}
+}

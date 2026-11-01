@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<title>EBBA full profile — ResNet-18 / 200 epochs</title>
+<style>
+    body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         max-width:1180px;margin:32px auto;padding:0 20px;color:#1f2328;line-height:1.55}
+    h1{font-size:26px} h2{font-size:19px;margin-top:30px;border-bottom:1px solid #d8dee4;padding-bottom:6px}
+    table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+    th,td{border:1px solid #d8dee4;padding:7px 9px;text-align:left;vertical-align:top}
+    th{background:#f6f8fa} code{background:#f6f8fa;padding:1px 5px;border-radius:4px}
+    .note{background:#fff8e5;border-left:4px solid #d4a72c;padding:10px 14px;margin:14px 0}
+    .ok{color:#1b7f3a;font-weight:600}.warn{color:#9a6700;font-weight:600}
+    .muted{color:#57606a;font-size:12px}
+    </style></head><body>
+<h1>EBBA / EBBA+ 全量档对比（ResNet-18，完整 CIFAR-10）</h1>
+<p class="muted">生成时间：2026-10-21T14:40:11+00:00 ·
+设备：cuda ·
+GPU：NVIDIA GeForce RTX 5060 Laptop GPU ·
+torch：2.7.1+cu128</p>
+
+<div class="note">
+<b>这不是论文的逐位复现。</b> 本档使用 ResNet-18、完整 CIFAR-10 50k/10k 和论文的
+200-epoch 训练配方，但攻击实现、OOD 图像（CIFAR-100 test，可选 GTSRB）、聚类定向规则
+和随机种子与原文不完全相同。数值应作为“同骨干、同规模下的独立复核”，不是论文表格的替代品。
+</div>
+
+<h2>1. 主结果：BA / ASR、PDR / F1、去除后 ASR</h2>
+<table>
+<tr><th rowspan="2">攻击</th><th colspan="3">BA / ASR（未防御）</th>
+<th colspan="3">PDR / F1</th><th colspan="3">去除后 ASR</th></tr>
+<tr><th>论文 CIFAR-10</th><th>ResNet-18 full</th><th>SmallCNN proxy</th>
+<th>论文 EBBA+</th><th>ResNet-18 full</th><th>SmallCNN proxy</th>
+<th>论文 EBBA+</th><th>ResNet-18 full（池内）</th><th>SmallCNN proxy（全测试集估计）</th></tr>
+<tr><td>badnets</td><td>0.912 / 0.994</td><td>0.920 / 0.959</td><td>0.790 / 0.937</td><td>0.960 / 0.960</td><td>0.896 / 0.905</td><td>0.374 / 0.530</td><td>0.029</td><td>0.104</td><td>0.587</td></tr><tr><td>blend</td><td>0.913 / 1.000</td><td>0.942 / 1.000</td><td>0.804 / 0.984</td><td>0.950 / 0.940</td><td>0.763 / 0.815</td><td>0.739 / 0.799</td><td>0.058</td><td>0.237</td><td>0.262</td></tr>
+</table>
+<p class="muted">论文列取自 Table 3（PDR/F1）与 Table 4（BA/ASR）。
+full 的去除后 ASR 是候选池内指标；proxy 列沿用 B09 的全测试集估计，两者口径不同，不能直接相减。</p>
+
+<h2>2. EBBA 检测（任务无关图像）</h2>
+<table>
+<tr><th>模型</th><th>λ=2.2 目标</th><th>λ=2.2 z</th><th>λ=2.2 检出</th>
+<th>λ=3 z</th><th>λ=3 检出</th></tr>
+<tr><td>clean</td><td>3</td><td>2.433</td><td>是</td><td>2.433</td><td>否</td></tr><tr><td>badnets</td><td>0</td><td>2.782</td><td>是</td><td>2.782</td><td>否</td></tr><tr><td>blend</td><td>3</td><td>2.286</td><td>是</td><td>2.286</td><td>否</td></tr>
+</table>
+<p class="muted">λ=3 是论文值；K=10 时单标签 z 的上界正好是 3（A20），严格 &gt;3σ 不可达，
+因此同时报告 λ_proxy=2.2。干净模型的期望是“不检出”，后门模型的期望是“目标类 0 检出”。</p>
+
+<h2>3. Fig. 1：目标标签在任务无关图像中的排名</h2>
+<table>
+<tr><th>模型</th><th>top-1</th><th>top-3</th><th>平均排名</th><th>均匀基线平均排名</th></tr>
+<tr><td>clean</td><td>0.106</td><td>0.303</td><td>4.487</td><td>4.500</td></tr><tr><td>badnets</td><td>0.214</td><td>0.688</td><td>2.175</td><td>4.500</td></tr><tr><td>blend</td><td>0.108</td><td>0.322</td><td>3.924</td><td>4.500</td></tr>
+</table>
+
+<h2>4. Fig. 2：损坏后的概率/排名迁移</h2>
+<table>
+<tr><th>攻击</th><th>目标概率下降比例</th><th>真值概率上升比例</th><th>两者同时发生</th>
+<th>真值排名前移比例</th><th>目标排名后移比例</th></tr>
+<tr><td>badnets</td><td>0.837</td><td>0.709</td><td>0.698</td><td>0.215</td><td>0.335</td></tr><tr><td>blend</td><td>0.868</td><td>0.762</td><td>0.737</td><td>0.241</td><td>0.279</td></tr>
+</table>
+
+<h2>5. NTE 标签恢复（Eq. 12）</h2>
+<table>
+<tr><th>攻击</th><th>候选池覆盖率</th><th>中毒图恢复率</th><th>干净目标类恢复率</th><th>进入 EBBA+ 的图数</th></tr>
+<tr><td>badnets</td><td>0.960</td><td>0.750</td><td>0.002</td><td>1440</td></tr><tr><td>blend</td><td>0.989</td><td>0.391</td><td>0.004</td><td>1483</td></tr>
+</table>
+
+<h2>6. EBBA+ 聚类：PDR / F1 与特征空间敏感性</h2>
+<table>
+<tr><th>攻击</th><th>主配置 Birch PDR</th><th>Birch F1</th><th>精确率</th>
+<th>NTE 特征空间 PDR（旧代理路径）</th><th>Oracle PDR</th><th>四方法 PDR 极差</th>
+<th>PDR（HC / Birch / MeanShift / DBSCAN）</th></tr>
+<tr><td>badnets</td><td>0.896</td><td>0.905</td><td>0.914</td><td>0.915</td><td>0.896</td><td>0.004</td><td>0.896 / 0.896 / 0.900 / 0.900</td></tr><tr><td>blend</td><td>0.763</td><td>0.815</td><td>0.874</td><td>0.555</td><td>0.763</td><td>0.076</td><td>0.763 / 0.763 / 0.687 / 0.687</td></tr>
+</table>
+<p class="muted">主配置对<b>损坏后图像的 ResNet-18 倒数第二层特征</b>（80 种损坏取平均）做标准化 + Birch，
+并用簇内平均峰值 NTE 认定中毒簇（论文未说明无标签时的定向规则）。论文的 t-SNE 仅用于
+可视化：在本档 1.5k 候选点上，t-SNE 的精确解仍会随 GPU logits 的批次差异改变 Birch 划分，
+因此不作为可复现的聚类路径。第二列保留 NTE 向量 + 目标 logit 领先量规则作对照。
+Oracle 是上界，不是可部署规则。</p>
+
+<h2>7. 结果怎么读</h2>
+<ul>
+<li><b>看方向与量级，不看小数点。</b> 论文的 PDR/F1 约 0.95；full 档若落在 0.80–0.95，
+说明机制在论文骨干上成立，但仍受 OOD 与攻击实现差异影响。</li>
+<li><b>BA/ASR 是实验台门槛。</b> 若 ASR 明显低于论文的 ~99%，PDR/F1 的比较意义会下降，
+因为可检测的后门信号更弱；报告仍如实展示。</li>
+<li><b>聚类极差是论文 Table 5/7 的关键断言。</b> 论文报告 0.010；full 档若仍大于 0.05，
+说明“换聚类方法几乎不变”依赖簇本身的高纯度，而不是方法无关。</li>
+<li><b>去除后 ASR 是池内指标。</b> 它回答“被 EBBA+ 检查的中毒图还有多少仍成功”，
+不等同于论文在完整测试集上的 ASR；两者口径不同。</li>
+<li><b>不能把本页写成“复现了论文的 96% PDR”。</b> 正确表述是“在 ResNet-18/200 epochs
+的独立设定下，PDR/F1 达到某值，与论文的差距为某值”。</li>
+</ul>
+
+<h2>8. 数据与协议</h2>
+<pre>{
+  &quot;profile&quot;: &quot;full&quot;,
+  &quot;model&quot;: &quot;ResNet18CIFAR&quot;,
+  &quot;epochs&quot;: 200,
+  &quot;batch_size&quot;: 64,
+  &quot;learning_rate&quot;: 0.01,
+  &quot;milestones&quot;: [
+    50,
+    100,
+    150
+  ],
+  &quot;train_size&quot;: 50000,
+  &quot;test_size&quot;: 10000,
+  &quot;ood_size&quot;: 10000,
+  &quot;ood_source&quot;: &quot;CIFAR-100 test&quot;,
+  &quot;poison_rate&quot;: 0.1,
+  &quot;target&quot;: 0,
+  &quot;lambda_paper&quot;: 3.0,
+  &quot;lambda_proxy&quot;: 2.2,
+  &quot;temperature&quot;: 2.0
+}</pre>
+</body></html>

@@ -1,0 +1,69 @@
+{
+  "id": "A18",
+  "tier": "A",
+  "scope": "exact",
+  "title_zh": "官方代码实现了论文的无任务样本、均衡选择与 80 种损坏协议",
+  "paper_ref": "Sec. 4.1, Sec. 5.1; official notebook",
+  "notebook": "03_table_audit",
+  "verdict": "CONTRADICTED",
+  "measured": {
+    "notebook": "/app/reference/EBBA.ipynb",
+    "n_code_cells": 22,
+    "checks": [
+      {
+        "id": "task_agnostic_pool",
+        "paper": "Internet images, task-agnostic",
+        "official": "GTSRB Final_Validation used as the image pool",
+        "passes": false
+      },
+      {
+        "id": "per_class_balancing",
+        "paper": "keep N images per pseudo-label",
+        "official": "no balancing code found",
+        "passes": false
+      },
+      {
+        "id": "sample_count",
+        "paper": "task-agnostic subset (paper does not fix a small count)",
+        "official": "11 batches x 64 = 704 images",
+        "passes": false
+      },
+      {
+        "id": "corruption_count",
+        "paper": "80 corruption methods",
+        "official": "15 types x 4 severities + 4 divisions = 64",
+        "passes": false
+      },
+      {
+        "id": "divide_by_one",
+        "paper": "division by positive integers > 1",
+        "official": "division loop starts at j=1 (identity)",
+        "passes": false
+      },
+      {
+        "id": "te_cap_consistency",
+        "paper": "a single definition, Eq. 9-10",
+        "official": "cap 5 in two helpers, cap 4 in another",
+        "passes": false
+      },
+      {
+        "id": "clustering",
+        "paper": "t-SNE + Birch split poisoned/clean",
+        "official": "clustering step absent",
+        "passes": false
+      },
+      {
+        "id": "ba_asr_evaluation",
+        "paper": "BA and ASR reported",
+        "official": "clean and patched validation sets evaluated separately",
+        "passes": true
+      }
+    ],
+    "n_failed": 7,
+    "protocol_checks": 8
+  },
+  "notes_zh": "对官方 PaddlePaddle Notebook 做静态解析（不执行）。8 项协议检查中7 项与论文不符：使用 GTSRB 验证集（任务相关）、无每类均衡、仅 704 张图、64 种损坏（含除以 1）、TE 截断 5/4 不一致、无聚类步骤。它能作为公式与流程的交叉参考，但不是论文实验的完整实现。",
+  "tolerance": {
+    "protocol_checks": 8
+  }
+}

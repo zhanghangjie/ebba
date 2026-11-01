@@ -1,0 +1,54 @@
+{
+  "id": "B07",
+  "tier": "B",
+  "scope": "proxy",
+  "title_zh": "EBBA+ 的 PDR/F1 达到论文报告的量级（Table 3）",
+  "paper_ref": "Table 3, p.8",
+  "notebook": "05_removal",
+  "verdict": "PARTIAL",
+  "measured": {
+    "attacks": {
+      "badnets": {
+        "pdr": 0.3736842105263158,
+        "precision": 0.9102564102564102,
+        "f1": 0.5298507462686568,
+        "tp": 71,
+        "fp": 7,
+        "fn": 119,
+        "tn": 84,
+        "method_used": "birch",
+        "identification_rule": "target_margin",
+        "pdr_peak_rule": 0.6263157894736842,
+        "f1_peak_rule": 0.6055979643765902,
+        "pdr_best_cluster_oracle": 0.6263157894736842,
+        "f1_best_cluster_oracle": 0.6055979643765902
+      },
+      "blend": {
+        "pdr": 0.7386934673366834,
+        "precision": 0.8698224852071006,
+        "f1": 0.7989130434782609,
+        "tp": 147,
+        "fp": 22,
+        "fn": 52,
+        "tn": 68,
+        "method_used": "birch",
+        "identification_rule": "target_margin",
+        "pdr_peak_rule": 0.2613065326633166,
+        "f1_peak_rule": 0.32601880877742945,
+        "pdr_best_cluster_oracle": 0.7386934673366834,
+        "f1_best_cluster_oracle": 0.7989130434782609
+      }
+    },
+    "per_attack_passed": {
+      "badnets": false,
+      "blend": true
+    },
+    "paper_level_reached": false
+  },
+  "notes_zh": "完整 EBBA+ 流程：EBBA 找目标标签 → 取被判为目标类的图 → NTE → t-SNE → Birch 二聚类。论文未说明无标签时如何认定哪个簇是中毒簇，本套件用簇内平均“目标 logit 领先最强非目标 logit 的幅度”来定向（backdoor 会把该幅度拉大）；同时报告两种敏感性：沿用峰值 NTE 定向的结果，以及用真实标签选最佳簇的上界。PDR/F1 用真实标签评估。论文报告 PDR/F1 约 0.95；缩比模型只要求达到可用量级（≥0.70）。只要有一种攻击达到可用量级即记 PARTIAL（机制成立），全部不达标才记 CONTRADICTED；论文级幅度（≥0.90）单独记录。",
+  "tolerance": {
+    "min_pdr": 0.7,
+    "min_f1": 0.7,
+    "paper_level": 0.9
+  }
+}

@@ -1,0 +1,7 @@
+# Root convenience wrapper so every command in README runs from the repo root:
+#   docker compose build ebba
+#   docker compose run --rm ebba verify
+# The service definitions live in docker/docker-compose.yml.
+include:
+  - path: docker/docker-compose.yml
+    project_directory: docker

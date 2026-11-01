@@ -1,0 +1,47 @@
+{
+  "id": "B03",
+  "tier": "B",
+  "scope": "proxy",
+  "title_zh": "λ 的可用区间形状与 Fig.80 一致",
+  "paper_ref": "Fig.80, p.24",
+  "notebook": "04_detection",
+  "verdict": "PARTIAL",
+  "measured": {
+    "attacks": {
+      "badnets": {
+        "valid_interval": [
+          1.8,
+          2.7
+        ],
+        "chosen_lambda": 2.2,
+        "chosen_valid": true,
+        "overlap_with_paper_interval": 0.9000000000000001,
+        "backdoored_target": 0
+      },
+      "blend": {
+        "valid_interval": [
+          1.8,
+          2.0
+        ],
+        "chosen_lambda": 2.2,
+        "chosen_valid": false,
+        "overlap_with_paper_interval": 0.19999999999999996,
+        "backdoored_target": 3
+      }
+    },
+    "per_attack_passed": {
+      "badnets": true,
+      "blend": false
+    },
+    "paper_interval": [
+      1.8,
+      5.7
+    ],
+    "chosen_lambda": 2.2,
+    "paper_lambda": 3.0
+  },
+  "notes_zh": "复算 Fig.80 的形状：固定后门模型的目标标签，改变 λ，找使“后门 margin>0 且干净 margin<0”的区间。论文报告可用区间约 [1.8, 5.7]；这里检查该区间是否与实测区间有重叠。由于 K=10 时 z≤3（A20），`λ=3 可用`这一项改用代理阈值 λ_proxy。区间端点由缩比模型决定，不能直接与论文数值对齐。Fig.80 是单模型图，故任一攻击复现出与论文区间重叠的可用区间即记通过；Blend 完全检不出是 B02 的结论，不在 B03 重复计为形状失败。",
+  "tolerance": {
+    "interval_overlap": true
+  }
+}

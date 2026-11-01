@@ -1,0 +1,56 @@
+{
+  "id": "B09",
+  "tier": "B",
+  "scope": "proxy",
+  "title_zh": "EBBA+ 去除后门且保持良性精度（Table 4）",
+  "paper_ref": "Table 4, p.9; Eq.12",
+  "notebook": "05_removal",
+  "verdict": "PARTIAL",
+  "measured": {
+    "attacks": {
+      "badnets": {
+        "asr_before_pool": 1.0,
+        "asr_after_pool": 0.6263157894736842,
+        "asr_reduction_pool": 0.37368421052631584,
+        "asr_before_test": 0.937,
+        "asr_after_test_estimate": 0.5868578947368421,
+        "ba_before_pool": 1.0,
+        "ba_after_pool": 0.9230769230769231,
+        "ba_drop_pool": 0.07692307692307687,
+        "ba_before_test": 0.7905,
+        "ba_drop_test_estimate": 0.002491103202846975,
+        "n_poisoned": 190,
+        "n_clean": 91,
+        "fp": 7
+      },
+      "blend": {
+        "asr_before_pool": 1.0,
+        "asr_after_pool": 0.2663316582914573,
+        "asr_reduction_pool": 0.7336683417085428,
+        "asr_before_test": 0.984,
+        "asr_after_test_estimate": 0.26207035175879395,
+        "ba_before_pool": 1.0,
+        "ba_after_pool": 0.7555555555555555,
+        "ba_drop_pool": 0.24444444444444446,
+        "ba_before_test": 0.804,
+        "ba_drop_test_estimate": 0.007612456747404844,
+        "n_poisoned": 199,
+        "n_clean": 90,
+        "fp": 22
+      }
+    },
+    "per_attack_passed": {
+      "badnets": false,
+      "blend": true
+    },
+    "paper_level_reached": false,
+    "n_test": 2000,
+    "n_target_class": 200
+  },
+  "notes_zh": "按论文做法，只改判“被判为目标类”的图：聚类判为中毒的图用 NTE argmax 重标，其余不动。池内 ASR 是条件指标（被 EBBA+ 检查的中毒图还有多少仍成功）；Table 4 的 BA/ASR 是全测试集指标，因此另算全局估计：BA 降幅 = 池内误报数 / 全测试集大小（只有目标类干净图会受影响），ASR_after ≈ 全局 ASR_before × 池内 ASR_after。判定看方向（ASR 至少降一半）与全局 BA（降幅 ≤0.05）；论文级幅度（降幅 ≥0.80、BA 降 ≤0.01）单独记录。池内 BA 降幅很大是误报集中在 200 张目标类图上的结果，二者都如实展示。",
+  "tolerance": {
+    "asr_reduction": 0.8,
+    "direction_reduction": 0.5,
+    "max_ba_drop": 0.05
+  }
+}

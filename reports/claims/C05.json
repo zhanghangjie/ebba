@@ -1,0 +1,20 @@
+{
+  "id": "C05",
+  "tier": "C",
+  "scope": "exact",
+  "title_zh": "ImageNet 子集（100 类、224×224）规模的结果",
+  "paper_ref": "Table 6, p.18; Table 3-4",
+  "notebook": "06_verdicts",
+  "verdict": "NOT_REPRODUCIBLE",
+  "measured": {
+    "reason_zh": "ImageNet 子集（100 类、224×224）需要 ImageNet 训练数据与 ResNet 级模型，下载量与算力都超出轻量容器的设计目标。",
+    "needed": [
+      "ImageNet 子集",
+      "ResNet18/VGG",
+      "GPU 训练"
+    ],
+    "proxy_note_zh": "Tier B 的 CIFAR-10 代理不覆盖高分辨率与 100 类设定。"
+  },
+  "notes_zh": "ImageNet 子集（100 类、224×224）需要 ImageNet 训练数据与 ResNet 级模型，下载量与算力都超出轻量容器的设计目标。",
+  "tolerance": {}
+}
